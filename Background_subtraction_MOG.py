@@ -1,12 +1,14 @@
 import cv2
 
-#cap = cv2.VideoCapture('video_files/GH010347.MP4')
+cap = cv2.VideoCapture('video_files/GH010347.MP4')
 #cap = cv2.VideoCapture('E:/Pictures & Videos/Videos/GoPro/GH010347.MP4')
 #cap = cv2.VideoCapture('video_files/PXL_20210522_093608367.mp4')
-cap = cv2.VideoCapture("video_files/highway.mp4")
+#cap = cv2.VideoCapture("video_files/highway.mp4")
 
 cap.set(cv2.CAP_PROP_BUFFERSIZE, 50)
 #cap2.set(cv2.CAP_PROP_BUFFERSIZE, 40)
+
+BS_MOG2 = cv2.createBackgroundSubtractorMOG2()
 
 #tracker = cv2.TrackerMOSSE_create()
 while cap.isOpened():
@@ -29,7 +31,7 @@ while cap.isOpened():
 
     cv2.imshow("Pier cam2", imS)
 
-    BS_MOG2 = cv2.createBackgroundSubtractorMOG2()
+
 
     fgMog = BS_MOG2.apply(img)
 

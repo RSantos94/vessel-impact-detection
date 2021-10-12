@@ -1,10 +1,16 @@
 import cv2
 
-#cap = cv2.VideoCapture('video_files/GH010347.MP4')
+cap = cv2.VideoCapture('video_files/GH010347.MP4')
 #cap = cv2.VideoCapture('E:/Pictures & Videos/Videos/GoPro/GH010347.MP4')
-cap = cv2.VideoCapture('video_files/PXL_20210522_093608367.mp4')
+#cap = cv2.VideoCapture('video_files/PXL_20210522_093608367.mp4')
 cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
 #cap2.set(cv2.CAP_PROP_BUFFERSIZE, 40)
+
+success, img = cap.read()
+
+myvideo=cv2.VideoWriter("video_files/forgroundKNN.avi", cv2.VideoWriter_fourcc('M','J','P','G'), 30, (int(img.shape[1]),int(img.shape[0])))
+
+BS_KNN = cv2.createBackgroundSubtractorKNN()
 
 #tracker = cv2.TrackerMOSSE_create()
 while cap.isOpened():
@@ -28,10 +34,12 @@ while cap.isOpened():
     cv2.imshow("Pier cam", imS)
     #cv2.imshow("Pier cam 2", imS2)
 
-    BS_KNN = cv2.createBackgroundSubtractorKNN()
+
 
     fgKnn = BS_KNN.apply(img)
 
+    fg = cv2.copyTo(img, fgKnn)
+    myvideo.write(fg)
 
     fgKnnRs = cv2.resize(fgKnn, (960, 540))  # Resize image
 
