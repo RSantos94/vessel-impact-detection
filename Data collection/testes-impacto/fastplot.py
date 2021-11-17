@@ -4,6 +4,7 @@
 Created on Tue Nov 16 10:17:08 2021
 
 @author: marcelino
+@author: Ruben santos
 """
 
 import numpy as np
@@ -79,7 +80,7 @@ def loaddata(fname,skiprows,skipcolumn):
 testpath = "testes-impacto"
 testname = "teste-009"
 accelname = "acc003"
-filename = testpath+"/"+testname+"/data-"+accelname+".csv"
+filename = testname+"/data-"+accelname+".csv"
 dados=loaddata(filename,2,1)
 
 
