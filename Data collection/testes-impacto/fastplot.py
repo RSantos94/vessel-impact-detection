@@ -9,12 +9,15 @@ Created on Tue Nov 16 10:17:08 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os,sys
 
 def desenha(x,y,ytxt,fname):
     ymax=0
     ymin=0
     xtmax=0
     xtmin=0
+    posmin=0
+    posmax=0
     n=0
     janelinha=100
     for xi,yi in zip(x,y):
@@ -27,7 +30,7 @@ def desenha(x,y,ytxt,fname):
             xtmin=xi
             posmin=n
         n+=1
-        
+    plt.figure(figsize=(16,9))    
     plt.plot(x,y)
     plt.text(xtmax,ymax,"v="+format(ymax,"6.2f")+"@ t="+format(xtmax,"6.2f"))
     plt.text(xtmin,ymin,"v="+format(ymin,"6.2f")+"@ t="+format(xtmin,"6.2f"))
@@ -56,7 +59,7 @@ def zoomplot(x,y,ytxt,fname):
             ymin=yi
             xtmin=xi
         n+=1
-        
+    plt.figure(figsize=(16,9))      
     plt.plot(x,y)
     plt.text(xtmax,ymax,"v="+format(ymax,"6.2f")+"@ t="+format(xtmax,"6.2f"))
     plt.text(xtmin,ymin,"v="+format(ymin,"6.2f")+"@ t="+format(xtmin,"6.2f"))
@@ -111,7 +114,7 @@ for c in range(3):
     for yi in y1:
         y.append(yi-ymed)
     print(len(tempo),len(y))
-    desenha(tempo,y,leg[c],str(c)+".png")
+    desenha(tempo,y,leg[c],str(c)+".pdf")
     
     # determinar picos e desenhar
     maximo=max(y)
