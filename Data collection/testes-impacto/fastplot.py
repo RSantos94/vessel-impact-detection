@@ -76,10 +76,8 @@ def loaddata(fname,skiprows,skipcolumn):
         linha=linhas[l].strip().split(",")
         resultado.append(linha[skipcolumn:])
     return resultado
-
-testpath = "testes-impacto"
-testname = "teste-009"
-accelname = "acc003"
+testname = "teste-010"
+accelname = "acc002"
 filename = testname+"/data-"+accelname+".csv"
 dados=loaddata(filename,2,1)
 
