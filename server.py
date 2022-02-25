@@ -7,11 +7,13 @@ from flask import render_template
 import threading
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
+from cameraTransformation import CameraTransformation
 
 
 outputFrame = None
 bs1 = None
 bs2 = None
+bsz3 = None
 cap1 = None
 cap2 = None
 lock = threading.Lock()
@@ -85,12 +87,18 @@ def gen_frames():
 			resized_frame = buffer.tobytes()
 			yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n')
 
+
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0', port=8000, debug=True)
 	#cap1 = cv2.VideoCapture('video_files/GH010731.MP4')
 	#cap2 = cv2.VideoCapture('video_files/MVI_2438.MP4')
-	bs1 = BackgroundSubtractionKNN('video_files/GH010731_cut.MP4')
-	bs1.subtractor(lock, 5000)
-	bs2 = BackgroundSubtractionKNN('video_files/MVI_2438.MP4')
-	bs2.subtractor(lock, 5000)
+	#bs1 = BackgroundSubtractionKNN('video_files/GH010731_cut.MP4')
+	#bs1.subtractor(lock, 5000)
+	#bs2 = BackgroundSubtractionKNN('video_files/MVI_2438.MP4')
+	#bs2.subtractor(lock, 5000)
+	bsz3 = BackgroundSubtractionKNN('GH010890')
+	bsz3.create_centroids_file()
+	bsz3.subtractor(lock, 1000)
+	ct = CameraTransformation('GH010890')
+	ct.configure()
