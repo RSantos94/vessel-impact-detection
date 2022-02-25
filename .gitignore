@@ -16,6 +16,6 @@ Data collection/testes-impacto/teste-010/
 
 *.png
 *.pdf
-Camera calibration/
 Data collection/
 __pycache__/
+results/
