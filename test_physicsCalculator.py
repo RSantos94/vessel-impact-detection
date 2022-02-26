@@ -1,5 +1,6 @@
 from physicsCalculator import PhysicsCalculator
 
+
 def test_calculate_acceleration():
     assert PhysicsCalculator.calculate_acceleration(10, )
 

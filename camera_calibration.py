@@ -1,10 +1,9 @@
-import cv2
-import numpy as np
-import cv2 as cv
 import glob
-import csv
-import pandas as pd
 import os
+
+import cv2
+import cv2 as cv
+import numpy as np
 
 
 class CameraCalibration:
@@ -16,8 +15,9 @@ class CameraCalibration:
 
     def calibrate(self, lock):
 
-        if os.path.isfile('Camera calibration/' + self.video_name[12:14] + '-mtx.csv') and os.path.isfile('Camera calibration/' + self.video_name[12:14] + '-dist.csv'):
-            #data = pd.read_csv('Camera calibration/' + self.video_name[12:14] + '.csv')
+        if os.path.isfile('Camera calibration/' + self.video_name[12:14] + '-mtx.csv') and os.path.isfile(
+                'Camera calibration/' + self.video_name[12:14] + '-dist.csv'):
+            # data = pd.read_csv('Camera calibration/' + self.video_name[12:14] + '.csv')
 
             self.mtx = np.loadtxt('Camera calibration/' + self.video_name[12:14] + '-mtx.csv', delimiter=',')
             self.dist = np.loadtxt('Camera calibration/' + self.video_name[12:14] + '-dist.csv', delimiter=',')

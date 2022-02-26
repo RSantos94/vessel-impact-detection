@@ -9,7 +9,6 @@ class EuclideanDistTracker:
         # each time a new object id detected, the count will increase by one
         self.id_count = 0
 
-
     def update(self, objects_rect):
         # Objects boxes and ids
         objects_bbs_ids = []
@@ -48,6 +47,3 @@ class EuclideanDistTracker:
         # Update dictionary with IDs not used removed
         self.center_points = new_center_points.copy()
         return objects_bbs_ids
-
-
-
