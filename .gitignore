@@ -1,9 +1,15 @@
 venv39/
 venv38/
 venv310/
+venv3.10/
 venv/
 .idea/
-video_files/
+__pycache__/
+
+
+*.png
+*.pdf
+
 Data collection/testes-impacto/cam filmar/
 Data collection/testes-impacto/cam fotografica/
 Data collection/testes-impacto/gopro/
@@ -15,8 +21,12 @@ Data collection/testes-impacto/teste-007/
 Data collection/testes-impacto/teste-009/
 Data collection/testes-impacto/teste-010/
 
-*.png
-*.pdf
+
 Data collection/
-__pycache__/
+!Data collection/.gitkeep
+
 results/
+!results/.gitkeep
+
+video_files/
+!video_files/.gitkeep
