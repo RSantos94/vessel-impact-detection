@@ -99,12 +99,12 @@ if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
 
     #source = 'MVI_2438' #lnec camara
-    source = 'GH010731_cut' #lnec gopro
-    #source = 'GH010890' #Z3
+    #source = 'GH010731_cut' #lnec gopro
+    source = 'GH010890' #Z3
 
     bs = BackgroundSubtractionKNN(source)
     bs.create_centroids_file()
     bs.subtractor(lock, 1000)
 
-    ct = CameraTransformation(source)
-    ct.configure()
+    #ct = CameraTransformation(source)
+    #ct.configure()

@@ -14,8 +14,10 @@ class BackgroundSubtractionKNN:
         self.video_name = 'video_files/' + source_name + '.MP4'
         self.ct = CentroidTracker()
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
-        self.window_size = (640, 360)
-        #self.window_size = (1280, 720)
+        # self.window_size = (640, 360)
+        # self.window_size = (1280, 720)
+        # self.window_size = (1980, 1080)
+        self.window_size = (3840, 2160)
 
     def subtractor(self, lock, area):
         camera_calibration = CameraCalibration(self.video_name)
@@ -30,8 +32,8 @@ class BackgroundSubtractionKNN:
 
         # myvideo=cv2.VideoWriter("video_files/forgroundKNN.avi", cv2.VideoWriter_fourcc('M','J','P','G'), 30, (int(img.shape[1]),int(img.shape[0])))
 
-        BS_KNN = cv2.createBackgroundSubtractorKNN(history=20, detectShadows=False, dist2Threshold=5000)
-        #BS_KNN = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False, varThreshold=100)
+        BS_KNN = cv2.createBackgroundSubtractorKNN(history=30, detectShadows=False, dist2Threshold=10000)
+        # BS_KNN = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False, varThreshold=100)
         # BS_KNN = cv2.createBackgroundSubtractorMOG2()
 
         # tracker = cv2.TrackerMOSSE_create()
@@ -45,7 +47,7 @@ class BackgroundSubtractionKNN:
             # cv2.putText(img2, str(int(cap2.get(cv2.CAP_PROP_FPS))), (75, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             if img is not None:
-                #cv2.namedWindow("Pier cam", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
+                # cv2.namedWindow("Pier cam", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
 
                 imS = cv2.resize(img, self.window_size)  # Resize image
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
@@ -71,7 +73,8 @@ class BackgroundSubtractionKNN:
                 # fgKnn = BS_KNN.apply(img_denoise)
                 # cv2.imshow("Pier cam undistorted", img_denoise)
 
-                fgKnn = BS_KNN.apply(img)
+                #fgKnn = BS_KNN.apply(img)
+                fgKnn = BS_KNN.apply(imS)
 
                 thresh = cv2.threshold(fgKnn, 25, 255, cv2.THRESH_BINARY)[1]
                 thresh = cv2.dilate(thresh, None, iterations=4)
@@ -99,11 +102,11 @@ class BackgroundSubtractionKNN:
             cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 0))
 
-
             fgKnnRs = self.get_centroid(area, fgKnnRs, cap)
 
-            #cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
-            cv2.imshow("Foreground", cv2.resize(fgKnnRs, self.window_size))
+            # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
+            #cv2.imshow("Foreground", cv2.resize(fgKnnRs, self.window_size))
+            cv2.imshow("Foreground", fgKnnRs)
         return fgKnnRs
 
     def get_centroid(self, area, fgKnnRs, cap):
@@ -111,16 +114,16 @@ class BackgroundSubtractionKNN:
         rects = []
 
         i = 0
-        #while  i< len(contours):
-            #i = hierarchy[i][0]
-            #c = contours[i]
+        # while  i< len(contours):
+        # i = hierarchy[i][0]
+        # c = contours[i]
         for idx, c in enumerate(contours):
             if cv2.contourArea(c) < area:
                 continue
 
             if hierarchy[0, idx, 3] == -1:
                 continue
-            print (hierarchy[0, idx, 3] )
+            # print(hierarchy[0, idx, 3])
 
             # get bounding box from countour
             (x, y, w, h) = cv2.boundingRect(c)
@@ -146,30 +149,28 @@ class BackgroundSubtractionKNN:
         objects = self.ct.update(rects)
 
         if objects is not None:
-            with open(self.centroid_file, 'w', encoding='UTF8') as f:
-                writer = csv.writer(f)
-                for (objectID, centroid) in objects.items():
-                    # draw both the ID of the object and the centroid of the
-                    # object on the output frame
-                    text = "ID {}".format(objectID)
-                    cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
-                    cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
 
-                    position_text = str(cap.get(cv2.CAP_PROP_POS_FRAMES)) + ", " + str(objectID) + ", {" + str(centroid[0]) + "}, {" + str(centroid[1]) + "}"
-                    writer.writerow(position_text)
+            for (objectID, centroid) in objects.items():
+                # draw both the ID of the object and the centroid of the
+                # object on the output frame
+                text = "ID {}".format(objectID)
+                cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
+                cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
+
+                self.save_centroids(int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID, centroid[0], centroid[1])
 
         return fgKnnRs
 
     def create_centroids_file(self):
+        header_list = ['frame', 'Object ID', 'x', 'y']
         with open(self.centroid_file, 'w', encoding='UTF8') as f:
-            writer = csv.writer(f)
-            writer.writerow("Object ID, x , y")
+            dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
+            dw.writeheader()
 
-    def save_centroids(self):
-        with open(self.centroid_file, 'w', encoding='UTF8') as f:
+    def save_centroids(self, frame, id, x, y):
+
+        with open(self.centroid_file, 'a', encoding='UTF8') as f:
             writer = csv.writer(f)
-            writer.writerow('Object ID, x , y')
-            for (objectID, centroid) in self.ct.objects.items():
-                text = objectID + ", " + centroid[0] + ", " + centroid[1]
-                writer.writerow(text)
+            data = [frame, id, x, y]
+            writer.writerow(data)
