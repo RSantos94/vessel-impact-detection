@@ -14,6 +14,8 @@ class BackgroundSubtractionKNN:
         self.video_name = 'video_files/' + source_name + '.MP4'
         self.ct = CentroidTracker()
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
+        self.window_size = (640, 360)
+        #self.window_size = (1280, 720)
 
     def subtractor(self, lock, area):
         camera_calibration = CameraCalibration(self.video_name)
@@ -28,8 +30,8 @@ class BackgroundSubtractionKNN:
 
         # myvideo=cv2.VideoWriter("video_files/forgroundKNN.avi", cv2.VideoWriter_fourcc('M','J','P','G'), 30, (int(img.shape[1]),int(img.shape[0])))
 
-        BS_KNN = cv2.createBackgroundSubtractorKNN(history=20, detectShadows=False, dist2Threshold=2000)
-        # BS_KNN = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False, varThreshold=100)
+        BS_KNN = cv2.createBackgroundSubtractorKNN(history=20, detectShadows=False, dist2Threshold=5000)
+        #BS_KNN = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False, varThreshold=100)
         # BS_KNN = cv2.createBackgroundSubtractorMOG2()
 
         # tracker = cv2.TrackerMOSSE_create()
@@ -43,9 +45,9 @@ class BackgroundSubtractionKNN:
             # cv2.putText(img2, str(int(cap2.get(cv2.CAP_PROP_FPS))), (75, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             if img is not None:
-                cv2.namedWindow("Pier cam", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
+                #cv2.namedWindow("Pier cam", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
 
-                imS = cv2.resize(img, (960, 540))  # Resize image
+                imS = cv2.resize(img, self.window_size)  # Resize image
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
                 cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
@@ -71,10 +73,13 @@ class BackgroundSubtractionKNN:
 
                 fgKnn = BS_KNN.apply(img)
 
+                thresh = cv2.threshold(fgKnn, 25, 255, cv2.THRESH_BINARY)[1]
+                thresh = cv2.dilate(thresh, None, iterations=4)
+
                 # fg = cv2.copyTo(img, fgKnn)
                 # myvideo.write(fg)
 
-                fgKnnRs = self.select_objects(area, cap, fgKnn)
+                fgKnnRs = self.select_objects(area, cap, thresh)
 
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
@@ -94,18 +99,28 @@ class BackgroundSubtractionKNN:
             cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 0))
 
+
             fgKnnRs = self.get_centroid(area, fgKnnRs, cap)
 
-            cv2.imshow("Foreground KNN", cv2.resize(fgKnnRs, (1920, 1080)))
+            #cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
+            cv2.imshow("Foreground", cv2.resize(fgKnnRs, self.window_size))
         return fgKnnRs
 
     def get_centroid(self, area, fgKnnRs, cap):
-        (contours, hierarchy) = cv2.findContours(fgKnnRs.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        (contours, hierarchy) = cv2.findContours(fgKnnRs.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
-        for c in contours:
+        i = 0
+        #while  i< len(contours):
+            #i = hierarchy[i][0]
+            #c = contours[i]
+        for idx, c in enumerate(contours):
             if cv2.contourArea(c) < area:
                 continue
+
+            if hierarchy[0, idx, 3] == -1:
+                continue
+            print (hierarchy[0, idx, 3] )
 
             # get bounding box from countour
             (x, y, w, h) = cv2.boundingRect(c)

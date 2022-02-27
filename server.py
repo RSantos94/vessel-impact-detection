@@ -97,14 +97,14 @@ def gen_frames():
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
-    # cap1 = cv2.VideoCapture('video_files/GH010731.MP4')
-    # cap2 = cv2.VideoCapture('video_files/MVI_2438.MP4')
-    # bs1 = BackgroundSubtractionKNN('video_files/GH010731_cut.MP4')
-    # bs1.subtractor(lock, 5000)
-    # bs2 = BackgroundSubtractionKNN('video_files/MVI_2438.MP4')
-    # bs2.subtractor(lock, 5000)
-    bsz3 = BackgroundSubtractionKNN('GH010890')
-    bsz3.create_centroids_file()
-    bsz3.subtractor(lock, 1000)
-    ct = CameraTransformation('GH010890')
+
+    #source = 'MVI_2438' #lnec camara
+    source = 'GH010731_cut' #lnec gopro
+    #source = 'GH010890' #Z3
+
+    bs = BackgroundSubtractionKNN(source)
+    bs.create_centroids_file()
+    bs.subtractor(lock, 1000)
+
+    ct = CameraTransformation(source)
     ct.configure()
