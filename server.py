@@ -8,7 +8,8 @@ import tkinter as tk
 from imutils.video import VideoStream
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
-from cameraTransformation import CameraTransformation
+from processCentroids import ProcessCentroids
+
 
 outputFrame = None
 bs1 = None
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     object_min_area = 1200  # lnec gp fica bem
     #bs.subtractor(lock, object_min_area, history, detectShadows, dist2Threshold)
 
+    pc = ProcessCentroids(source)
+    pc.execute()
 
 
-    #ct = CameraTransformation(source)
-    #ct.configure()
