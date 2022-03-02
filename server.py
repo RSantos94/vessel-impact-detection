@@ -119,7 +119,9 @@ if __name__ == '__main__':
     object_min_area = 1200  # lnec gp fica bem
     #bs.subtractor(lock, object_min_area, history, detectShadows, dist2Threshold)
 
-    pc = ProcessCentroids(source)
+    objects_to_track = ['18']
+    # objects_to_track = None
+    pc = ProcessCentroids(source, objects_to_track)
     pc.execute()
 
 
