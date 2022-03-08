@@ -10,31 +10,24 @@ from centroidTracker import CentroidTracker
 class BackgroundSubtractionKNN:
     outputFrame = None
 
-    def __init__(self, source_name):
+    def __init__(self, source_name, resolution):
         self.video_name = 'video_files/' + source_name + '.MP4'
         self.ct = CentroidTracker()
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
-        # self.window_size = (640, 360)
-        # self.window_size = (1280, 720)
-        # self.window_size = (1980, 1080)
-        self.window_size = (3840, 2160)
+        self.window_size = resolution
 
-    def subtractor(self, lock, area):
+
+    def subtractor(self, lock, area, history, shadows, threshold):
         camera_calibration = CameraCalibration(self.video_name)
         camera_calibration.calibrate(lock)
         cap = cv2.VideoCapture(self.video_name)
-        # cap = cv2.VideoCapture('E:/Pictures & Videos/Videos/GoPro/GH010347.MP4')
-        # cap = cv2.VideoCapture('video_files/PXL_20210522_093608367.mp4')
+
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
-        # cap2.set(cv2.CAP_PROP_BUFFERSIZE, 40)
 
         success, img = cap.read()
 
-        # myvideo=cv2.VideoWriter("video_files/forgroundKNN.avi", cv2.VideoWriter_fourcc('M','J','P','G'), 30, (int(img.shape[1]),int(img.shape[0])))
+        BS_KNN = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=shadows, dist2Threshold=threshold)
 
-        BS_KNN = cv2.createBackgroundSubtractorKNN(history=30, detectShadows=False, dist2Threshold=10000)
-        # BS_KNN = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False, varThreshold=100)
-        # BS_KNN = cv2.createBackgroundSubtractorMOG2()
 
         # tracker = cv2.TrackerMOSSE_create()
         while cap.isOpened():
@@ -82,7 +75,7 @@ class BackgroundSubtractionKNN:
                 # fg = cv2.copyTo(img, fgKnn)
                 # myvideo.write(fg)
 
-                fgKnnRs = self.select_objects(area, cap, thresh)
+                fgKnnRs = self.select_objects(area, cap, fgKnn)
 
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
@@ -158,19 +151,19 @@ class BackgroundSubtractionKNN:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
                 cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
 
-                self.save_centroids(int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID, centroid[0], centroid[1])
+                self.save_centroids(int(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID, centroid[0], centroid[1])
 
         return fgKnnRs
 
     def create_centroids_file(self):
-        header_list = ['frame', 'Object ID', 'x', 'y']
+        header_list = ['fps', 'frame', 'Object ID', 'x', 'y']
         with open(self.centroid_file, 'w', encoding='UTF8') as f:
             dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
             dw.writeheader()
 
-    def save_centroids(self, frame, id, x, y):
+    def save_centroids(self, fps, frame, object_id, x, y):
 
         with open(self.centroid_file, 'a', encoding='UTF8') as f:
             writer = csv.writer(f)
-            data = [frame, id, x, y]
+            data = [fps, frame, object_id, x, y]
             writer.writerow(data)

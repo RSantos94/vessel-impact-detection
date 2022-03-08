@@ -8,7 +8,8 @@ import tkinter as tk
 from imutils.video import VideoStream
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
-from cameraTransformation import CameraTransformation
+from processCentroids import ProcessCentroids
+
 
 outputFrame = None
 bs1 = None
@@ -99,12 +100,28 @@ if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
 
     #source = 'MVI_2438' #lnec camara
-    #source = 'GH010731_cut' #lnec gopro
-    source = 'GH010890' #Z3
+    source = 'GH010731_cut' #lnec gopro
+    #source = 'GH010890' #Z3
+    # window_size = (640, 360)
+    # window_size = (1280, 720)
+    window_size = (1980, 1080)
+    # window_size = (3840, 2160)
 
-    bs = BackgroundSubtractionKNN(source)
-    bs.create_centroids_file()
-    bs.subtractor(lock, 1000)
+    #bs = BackgroundSubtractionKNN(source, window_size)
+    #bs.create_centroids_file()
+    #history = 10 #Z3 fica bem
+    #detectShadows = False #Z3 fica bem
+    #dist2Threshold = 100 #Z3 fica bem
+    # object_min_area = 1000 #Z3 fica bem
+    history = 10  # lnec gp fica bem
+    detectShadows = False  # lnec gp fica bem
+    dist2Threshold = 1000  # lnec gp fica bem
+    object_min_area = 1200  # lnec gp fica bem
+    #bs.subtractor(lock, object_min_area, history, detectShadows, dist2Threshold)
 
-    #ct = CameraTransformation(source)
-    #ct.configure()
+    objects_to_track = ['18']
+    # objects_to_track = None
+    pc = ProcessCentroids(source, objects_to_track)
+    pc.execute()
+
+
