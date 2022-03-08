@@ -1,0 +1,11 @@
+GoPro
+inclinação: 68
+rotação: 21
+altura: 0,53
+distância: 0
+
+Pixel
+inclinação: 55
+rotação: 10
+altura: 0,70
+distância:  2.55

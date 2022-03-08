@@ -10,24 +10,13 @@ __pycache__/
 *.png
 *.pdf
 
-Data collection/testes-impacto/cam filmar/
-Data collection/testes-impacto/cam fotografica/
-Data collection/testes-impacto/gopro/
-Data collection/testes-impacto/teste 001/
-Data collection/testes-impacto/teste 003/
-Data collection/testes-impacto/teste 004/
-Data collection/testes-impacto/teste-006/
-Data collection/testes-impacto/teste-007/
-Data collection/testes-impacto/teste-009/
-Data collection/testes-impacto/teste-010/
+/Data collection/*
+!/Data collection/.gitkeep
+!/Data collection/teste piscina 1
 
+/results/
+!/results/.gitkeep
 
-Data collection/
-!Data collection/.gitkeep
-
-results/
-!results/.gitkeep
-
-video_files/
-!video_files/.gitkeep
+/video_files/
+!/video_files/.gitkeep
 Data collection/*.ipynb
