@@ -197,7 +197,9 @@ if __name__ == '__main__':
         # dist2Threshold2 = 1000  # lnec gp fica bem
         # object_min_area2 = 1200  # lnec gp fica bem
 
-        run(source, window_size, history, detectShadows, dist2Threshold, object_min_area, [])
+        bs = create_bs(source, window_size)
+
+        run(bs, history, detectShadows, dist2Threshold, object_min_area)
 
         objects_to_track = []  # ['18']
 
