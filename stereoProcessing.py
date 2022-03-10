@@ -4,10 +4,11 @@ import cameratransform as ct
 import numpy as np
 
 from cameraTransformation import CameraTransformation
+from os.path import exists
 
 
 def get_points(source):
-    f = open(source, "r")
+    f = open('config/' + source + '-points.txt', "r")
     landmarks = []
     for x in f:
         x = x.replace("\n", "")
@@ -20,11 +21,11 @@ def get_points(source):
 
 class StereoProcessing:
 
-    def __init__(self, source1, source2, objects_to_track1, objects_to_track2):
+    def __init__(self, source1, source2):
         self.centroid_file_1 = 'results/' + source1 + '-centroids.csv'
         self.centroid_file_2 = 'results/' + source2 + '-centroids.csv'
-        self.objects_to_track1 = objects_to_track1
-        self.objects_to_track2 = objects_to_track2
+        self.objects_to_track1 = []
+        self.objects_to_track2 = []
 
         ct1 = CameraTransformation(source1)
         ct1.configure()
@@ -34,8 +35,6 @@ class StereoProcessing:
         cam2 = ct2.camera
 
         self.cam_group = ct.CameraGroup(cam1.projection, (cam1.orientation, cam2.orientation))
-
-        self.configure_points(source1, source2)
 
 
     def execute(self):
@@ -47,7 +46,7 @@ class StereoProcessing:
 
         prev1 = []
         prev2 = []
-        
+
         object_start_pos1 = []
         object_end_pos1 = []
         object_start_pos2 = []
@@ -69,7 +68,8 @@ class StereoProcessing:
                     frames = []
                     continue
 
-                if object_id == row1['Object ID'] and row1['Object ID'] == row2['Object ID'] and row1['frame'] == row2['frame']:
+                if object_id == row1['Object ID'] and row1['Object ID'] == row2['Object ID'] and row1['frame'] == row2[
+                    'frame']:
                     object_start_pos1.append(prev1)
                     object_start_pos2.append(prev2)
 
@@ -97,7 +97,6 @@ class StereoProcessing:
                     print('Object ' + object_id + ' total distance is: ' + str(distances))
                     object_id = None
 
-
     def read_file(self, centroid_file, objects):
         with open(centroid_file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
@@ -113,13 +112,11 @@ class StereoProcessing:
             else:
                 return result
 
-    def configure_points(self,source1, source2):
-        file_name_1 = 'config/' + source1 + '-points.txt'
-        file_name_2 = 'config/' + source2 + '-points.txt'
-        corresponding1 = np.array(get_points(file_name_1))
-        corresponding2 = np.array(get_points(file_name_2))
+    def configure_points(self, source1, source2):
+        corresponding1 = np.array(get_points(source1))
+        corresponding2 = np.array(get_points(source2))
 
         self.cam_group.addPointCorrespondenceInformation(corresponding1, corresponding2)
 
-
-
+    def has_points_file(self, source):
+        return exists('config/' + source + '-points.txt')

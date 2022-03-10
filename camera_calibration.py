@@ -13,7 +13,7 @@ class CameraCalibration:
         self.mtx = None
         self.video_name = video_name
 
-    def calibrate(self, lock):
+    def calibrate(self):
 
         if os.path.isfile('Camera calibration/' + self.video_name[12:14] + '-mtx.csv') and os.path.isfile(
                 'Camera calibration/' + self.video_name[12:14] + '-dist.csv'):

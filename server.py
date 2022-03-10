@@ -96,20 +96,18 @@ def gen_frames():
                 yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n'
 
 
-def run(source_file, compute_window_size, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_area,
-        frame_array):
-    bs = BackgroundSubtractionKNN(source_file, compute_window_size, frame_array)
+def create_bs(source_file, compute_window_size):
+    return BackgroundSubtractionKNN(source_file, compute_window_size)
 
+
+def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_area):
     bs.subtractor(lock, centroid_object_min_area, bs_history, detect_shadows, dist_2_threshold)
-
-    return bs.frame
-
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
 
-    #stereo = True
+    # stereo = True
 
     # window_size = (640, 360)
     # window_size = (1280, 720)
@@ -120,7 +118,6 @@ if __name__ == '__main__':
 
     # objects_to_track = None
     stereo = input("Stereo (y/n)?:")
-
 
     if stereo == 'y':
         # source1 = 'MVI_2438'  # lnec camara
@@ -140,12 +137,28 @@ if __name__ == '__main__':
         window_size1 = (1980, 1080)
         window_size2 = (1980, 1080)
 
-        #frame = []
-        frame = run(source1, window_size1, history1, detectShadows1, dist2Threshold1, object_min_area1, [])
-        run(source2, window_size2, history2, detectShadows2, dist2Threshold2, object_min_area2, frame)
+        # frame = []
 
-        objects_to_track1 = []# ['18']
-        objects_to_track2 = []# ['18']
+        bs1 = create_bs(source1, window_size1)
+        bs2 = create_bs(source2, window_size2)
+
+        sp = StereoProcessing(source1, source2)
+
+        if sp.has_points_file(source1) is not True:
+            bs1.get_screenshot()
+            bs2.frames = bs1.frames
+
+        if sp.has_points_file(source2) is not True:
+            bs2.get_screenshot()
+
+        if sp.has_points_file(source1) is not True and sp.has_points_file(source2) is not True:
+            input("Create corresponding points file at config/{source}-points.txt and press enter")
+
+        run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1)
+        run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2)
+
+        objects_to_track1 = []  # ['18']
+        objects_to_track2 = []  # ['18']
 
         text1 = input("Object ids to track from first camera (separated by comma):")
         text2 = input("Object ids to track from second camera (separated by comma):")
@@ -158,7 +171,9 @@ if __name__ == '__main__':
         for x in arr2:
             objects_to_track2.append(str(x.split()))
 
-        sp = StereoProcessing(source1, source2, objects_to_track1, objects_to_track2)
+        sp.objects_to_track1 = objects_to_track1
+        sp.centroid_file_2 = objects_to_track2
+        sp.configure_points(source1, source2)
         sp.execute()
 
     else:
@@ -184,7 +199,7 @@ if __name__ == '__main__':
 
         run(source, window_size, history, detectShadows, dist2Threshold, object_min_area, [])
 
-        objects_to_track = [] #['18']
+        objects_to_track = []  # ['18']
 
         text = input("Object ids to track (separated by comma):")
 
