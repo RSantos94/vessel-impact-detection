@@ -57,26 +57,26 @@ class BackgroundSubtractionKNN:
                 # cv2.imshow("Pier cam 2", imS2)
 
                 # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                # undistorted_img = camera_calibration.undistort(img)
+                undistorted_img = camera_calibration.undistort(img)
 
                 img_denoise = None
 
                 # cv2.fastNlMeansDenoising(src=img, dst=img_denoise, h=2)
-                # if undistorted_img is not None:
-                # cv2.imshow("Pier cam undistorted", undistorted_img)
-                # fgKnn = bs_knn.apply(undistorted_img)
+                if undistorted_img is not None:
+                    cv2.imshow("Pier cam undistorted", undistorted_img)
+                    fgKnn = bs_knn.apply(undistorted_img)
 
                 # if img_denoise is not None:
                 # fgKnn = bs_knn.apply(img_denoise)
                 # cv2.imshow("Pier cam undistorted", img_denoise)
 
                 #fgKnn = bs_knn.apply(img)
-                fgKnn = bs_knn.apply(imS)
+                #fgKnn = bs_knn.apply(imS)
 
                 # fg = cv2.copyTo(img, fgKnn)
                 # myvideo.write(fg)
 
-                fgKnnRs = self.select_objects(area, cap, fgKnn, history)
+                self.select_objects(area, cap, fgKnn, history)
 
             if frame_counter in self.frame:
                 img_name = self.screenshot_name + '_' + str(img_counter) + '.png'

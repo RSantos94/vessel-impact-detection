@@ -33,7 +33,9 @@ class CameraCalibration:
             imgpoints = []  # 2d points in image plane.
             gray = None
             if self.video_name[12:14] == 'GH':
-                images = glob.glob('video_files/cam_calibration/gopro/2/*.jpg')
+                images = glob.glob('Camera calibration/cam_calibration/gopro/2/*.jpg')
+            elif self.video_name[12:14] == 'PX':
+                images = glob.glob('Camera calibration/cam_calibration/pxl/*.jpg')
             else:
                 images = None  # = glob.glob('video_files/cam_calibration/gopro/2/*.jpg')
             if images is not None:

@@ -9,6 +9,7 @@ __pycache__/
 
 *.png
 *.pdf
+*.mp4
 
 /Data collection/*
 !/Data collection/.gitkeep
