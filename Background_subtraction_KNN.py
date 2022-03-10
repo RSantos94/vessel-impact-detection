@@ -80,6 +80,8 @@ class BackgroundSubtractionKNN:
                 imS = cv2.resize(img, self.window_size)  # Resize image
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
+                undistorted_img = camera_calibration.undistort(imS)
+
                 cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
                 cv2.putText(imS, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
@@ -88,12 +90,16 @@ class BackgroundSubtractionKNN:
                 # cv2.imshow("Pier cam 2", imS2)
 
                 # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                undistorted_img = camera_calibration.undistort(imS)
 
                 if undistorted_img is not None:
+                    fgKnn = bs_knn.apply(undistorted_img)
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
                     cv2.imshow("Pier cam undistorted", undistorted_img)
-                    fgKnn = bs_knn.apply(undistorted_img)
+                    cv2.rectangle(undistorted_img, (10, 2), (100, 20), (255, 255, 255), -1)
+                    cv2.putText(undistorted_img, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                    cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
+                    cv2.imshow("Pier cam undistorted", undistorted_img)
 
                 # fgKnn = bs_knn.apply(img)
 
