@@ -26,10 +26,13 @@ class BackgroundSubtractionKNN:
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
         img_counter = 0
         frame_counter = 0
+
+        print("Press s to save picture or q to exit()")
         while cap.isOpened():
             # timer = cv2.getTickCount()
             success, img = cap.read()
             frame_counter += 1
+
             undistorted_img = camera_calibration.undistort(img)
 
             img_denoise = None
@@ -37,23 +40,29 @@ class BackgroundSubtractionKNN:
             # cv2.fastNlMeansDenoising(src=img, dst=img_denoise, h=2)
             if undistorted_img is not None:
                 imS = cv2.resize(undistorted_img, self.window_size)
-                cv2.imshow("Pier cam undistorted", imS)
 
                 if frame_counter in self.frames:
                     img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
                     cv2.imwrite(img_name, imS)
                     print("{} written!".format(img_name))
                     img_counter += 1
+                    if frame_counter == max(self.frames):
+                        break
 
-                if cv2.waitKey(1) & 0xff == ord('q'):
+                cv2.imshow("Pier cam undistorted", imS)
+
+                wait_key = cv2.waitKey(1)
+                if wait_key == 113:
                     break
-                elif cv2.waitKey(1) & 0xff == ord('s'):
+                elif wait_key == 115:
                     # SPACE pressed
                     img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
                     cv2.imwrite(img_name, imS)
                     print("{} written!".format(img_name))
                     img_counter += 1
                     self.frames.append(frame_counter)
+        cv2.destroyAllWindows()
+        cap.release()
 
     def subtractor(self, lock, area, history, shadows, threshold):
         camera_calibration = CameraCalibration(self.video_name)
