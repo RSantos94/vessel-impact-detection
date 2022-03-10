@@ -9,7 +9,7 @@ from imutils.video import VideoStream
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
 from processCentroids import ProcessCentroids
-
+from stereoProcessing import StereoProcessing
 
 outputFrame = None
 bs1 = None
@@ -85,43 +85,112 @@ def gen_frames():
     while True:
         if cap1 is None:
             continue
-        success, frame_test = cap1.read()  # read the camera frame
-        if not success:
-            break
         else:
-            resized_frame = cv2.resize(frame_test, (960, 540))
-            ret, buffer = cv2.imencode('.jpg', resized_frame)
-            resized_frame = buffer.tobytes()
-            yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n')
+            success, frame_test = cap1.read()  # read the camera frame
+            if not success:
+                break
+            else:
+                resized_frame = cv2.resize(frame_test, (960, 540))
+                ret, buffer = cv2.imencode('.jpg', resized_frame)
+                resized_frame = buffer.tobytes()
+                yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n'
+
+
+def run(source_file, compute_window_size, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_area,
+        frame_array):
+    bs = BackgroundSubtractionKNN(source_file, compute_window_size, frame_array)
+
+    bs.subtractor(lock, centroid_object_min_area, bs_history, detect_shadows, dist_2_threshold)
+
+    return bs.frame
 
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
 
-    #source = 'MVI_2438' #lnec camara
-    source = 'GH010731_cut' #lnec gopro
-    #source = 'GH010890' #Z3
+    #stereo = True
+
     # window_size = (640, 360)
     # window_size = (1280, 720)
     window_size = (1980, 1080)
     # window_size = (3840, 2160)
 
-    #bs = BackgroundSubtractionKNN(source, window_size)
-    #bs.create_centroids_file()
-    #history = 10 #Z3 fica bem
-    #detectShadows = False #Z3 fica bem
-    #dist2Threshold = 100 #Z3 fica bem
-    # object_min_area = 1000 #Z3 fica bem
-    history = 10  # lnec gp fica bem
-    detectShadows = False  # lnec gp fica bem
-    dist2Threshold = 1000  # lnec gp fica bem
-    object_min_area = 1200  # lnec gp fica bem
-    #bs.subtractor(lock, object_min_area, history, detectShadows, dist2Threshold)
+    # bs.create_centroids_file()
 
-    objects_to_track = ['18']
     # objects_to_track = None
-    pc = ProcessCentroids(source, objects_to_track)
-    pc.execute()
+    stereo = input("Stereo (y/n)?:")
 
 
+    if stereo == 'y':
+        # source1 = 'MVI_2438'  # lnec camara
+        # source2 = 'GH010731_cut'  # lnec gopro
+        source1 = 'GH010946_1'
+        source2 = 'PXL_20220308_141209924_1'
+
+        history1 = 20  # piscina gp fica bem
+        detectShadows1 = False  # piscina gp fica bem
+        dist2Threshold1 = 2000  # piscina gp fica bem
+        object_min_area1 = 800  # piscina gp fica bem
+        history2 = 20  # piscina pxl fica bem
+        detectShadows2 = False  # piscina pxl fica bem
+        dist2Threshold2 = 800  # piscina pxl fica bem
+        object_min_area2 = 11000  # piscina pxl fica bem
+        # window_size1 = (1280, 720)
+        window_size1 = (1980, 1080)
+        window_size2 = (1980, 1080)
+
+        #frame = []
+        frame = run(source1, window_size1, history1, detectShadows1, dist2Threshold1, object_min_area1, [])
+        run(source2, window_size2, history2, detectShadows2, dist2Threshold2, object_min_area2, frame)
+
+        objects_to_track1 = []# ['18']
+        objects_to_track2 = []# ['18']
+
+        text1 = input("Object ids to track from first camera (separated by comma):")
+        text2 = input("Object ids to track from second camera (separated by comma):")
+
+        arr1 = text1.split(',')
+        for x in arr1:
+            objects_to_track1.append(str(x.split()))
+
+        arr2 = text2.split(',')
+        for x in arr2:
+            objects_to_track2.append(str(x.split()))
+
+        sp = StereoProcessing(source1, source2, objects_to_track1, objects_to_track2)
+        sp.execute()
+
+    else:
+        # source = 'MVI_2438' #lnec camara
+        source = 'GH010731_cut'  # lnec gopro
+        # source = 'GH010890' #Z3
+        # history = 10 #Z3 fica bem
+        # detectShadows = False #Z3 fica bem
+        # dist2Threshold = 100 #Z3 fica bem
+        # object_min_area = 1000 #Z3 fica bem
+        history = 20  # lnec gp fica bem
+        detectShadows = False  # lnec gp fica bem
+        dist2Threshold = 1000  # lnec gp fica bem
+        object_min_area = 1200  # lnec gp fica bem
+        # history1 = 10  # lnec gp fica bem
+        # detectShadows1 = False  # lnec gp fica bem
+        # dist2Threshold1 = 1000  # lnec gp fica bem
+        # object_min_area1 = 1200  # lnec gp fica bem
+        # history2 = 10  # lnec gp fica bem
+        # detectShadows2 = False  # lnec gp fica bem
+        # dist2Threshold2 = 1000  # lnec gp fica bem
+        # object_min_area2 = 1200  # lnec gp fica bem
+
+        run(source, window_size, history, detectShadows, dist2Threshold, object_min_area, [])
+
+        objects_to_track = [] #['18']
+
+        text = input("Object ids to track (separated by comma):")
+
+        arr1 = text.split(',')
+        for x in arr1:
+            objects_to_track.append(str(x.split()))
+
+        pc = ProcessCentroids(source, objects_to_track)
+        pc.execute()

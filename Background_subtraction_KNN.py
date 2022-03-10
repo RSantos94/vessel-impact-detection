@@ -10,11 +10,13 @@ from centroidTracker import CentroidTracker
 class BackgroundSubtractionKNN:
     outputFrame = None
 
-    def __init__(self, source_name, resolution):
+    def __init__(self, source_name, resolution, frame):
         self.video_name = 'video_files/' + source_name + '.MP4'
+        self.screenshot_name = 'screenshot_files/' + source_name
         self.ct = CentroidTracker()
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
         self.window_size = resolution
+        self.frame = frame
 
 
     def subtractor(self, lock, area, history, shadows, threshold):
@@ -26,9 +28,10 @@ class BackgroundSubtractionKNN:
 
         success, img = cap.read()
 
-        BS_KNN = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=shadows, dist2Threshold=threshold)
+        bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=shadows, dist2Threshold=threshold)
 
-
+        img_counter = 0
+        frame_counter = 0
         # tracker = cv2.TrackerMOSSE_create()
         while cap.isOpened():
             # timer = cv2.getTickCount()
@@ -40,6 +43,7 @@ class BackgroundSubtractionKNN:
             # cv2.putText(img2, str(int(cap2.get(cv2.CAP_PROP_FPS))), (75, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             if img is not None:
+                frame_counter += 1
                 # cv2.namedWindow("Pier cam", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
 
                 imS = cv2.resize(img, self.window_size)  # Resize image
@@ -60,31 +64,42 @@ class BackgroundSubtractionKNN:
                 # cv2.fastNlMeansDenoising(src=img, dst=img_denoise, h=2)
                 # if undistorted_img is not None:
                 # cv2.imshow("Pier cam undistorted", undistorted_img)
-                # fgKnn = BS_KNN.apply(undistorted_img)
+                # fgKnn = bs_knn.apply(undistorted_img)
 
                 # if img_denoise is not None:
-                # fgKnn = BS_KNN.apply(img_denoise)
+                # fgKnn = bs_knn.apply(img_denoise)
                 # cv2.imshow("Pier cam undistorted", img_denoise)
 
-                #fgKnn = BS_KNN.apply(img)
-                fgKnn = BS_KNN.apply(imS)
-
-                thresh = cv2.threshold(fgKnn, 25, 255, cv2.THRESH_BINARY)[1]
-                thresh = cv2.dilate(thresh, None, iterations=4)
+                #fgKnn = bs_knn.apply(img)
+                fgKnn = bs_knn.apply(imS)
 
                 # fg = cv2.copyTo(img, fgKnn)
                 # myvideo.write(fg)
 
-                fgKnnRs = self.select_objects(area, cap, fgKnn)
+                fgKnnRs = self.select_objects(area, cap, fgKnn, history)
+
+            if frame_counter in self.frame:
+                img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
+                cv2.imwrite(img_name, imS)
+                print("{} written!".format(img_name))
+                img_counter += 1
+                self.frame = frame_counter
 
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
+            elif cv2.waitKey(1) & 0xff == ord('s'):
+                # SPACE pressed
+                img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
+                cv2.imwrite(img_name, imS)
+                print("{} written!".format(img_name))
+                img_counter += 1
+                self.frame.append(frame_counter)
 
         # self.save_centroids()
         cv2.destroyAllWindows()
         cap.release()
 
-    def select_objects(self, area, cap, fgKnn):
+    def select_objects(self, area, cap, fgKnn, history):
         if fgKnn is not None:
             # fgKnnRs = cv2.resize(fgKnn, (960, 540))  # Resize image
             fgKnnRs = fgKnn  # No resize image
@@ -95,14 +110,14 @@ class BackgroundSubtractionKNN:
             cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 0))
 
-            fgKnnRs = self.get_centroid(area, fgKnnRs, cap)
+            fgKnnRs = self.get_centroid(area, fgKnnRs, cap, history)
 
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             #cv2.imshow("Foreground", cv2.resize(fgKnnRs, self.window_size))
             cv2.imshow("Foreground", fgKnnRs)
         return fgKnnRs
 
-    def get_centroid(self, area, fgKnnRs, cap):
+    def get_centroid(self, area, fgKnnRs, cap, history):
         (contours, hierarchy) = cv2.findContours(fgKnnRs.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
@@ -146,12 +161,14 @@ class BackgroundSubtractionKNN:
             for (objectID, centroid) in objects.items():
                 # draw both the ID of the object and the centroid of the
                 # object on the output frame
-                text = "ID {}".format(objectID)
-                cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
-                cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
 
-                self.save_centroids(int(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID, centroid[0], centroid[1])
+                if history < cap.get(cv2.CAP_PROP_POS_FRAMES):
+                    text = "ID {}".format(objectID)
+                    cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
+                    cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
+
+                    self.save_centroids(int(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID, centroid[0], centroid[1])
 
         return fgKnnRs
 
