@@ -49,7 +49,8 @@ class BackgroundSubtractionKNN:
                     if frame_counter == max(self.frames):
                         break
 
-                cv2.imshow("Pier cam undistorted", imS)
+                if self.frames == []:
+                    cv2.imshow("Pier cam undistorted", imS)
 
                 wait_key = cv2.waitKey(1)
                 if wait_key == 113:
@@ -89,58 +90,51 @@ class BackgroundSubtractionKNN:
                 imS = cv2.resize(img, self.window_size)  # Resize image
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
-                undistorted_img = camera_calibration.undistort(imS)
+                undistorted_img = camera_calibration.undistort(img)
+                undistorted_img_s = cv2.resize(undistorted_img, self.window_size)
 
                 cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
                 cv2.putText(imS, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
 
                 cv2.imshow("Pier cam", imS)
-                # cv2.imshow("Pier cam 2", imS2)
 
-                # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
+                if undistorted_img_s is not None:
+                    fgKnn = bs_knn.apply(undistorted_img_s)
 
-                if undistorted_img is not None:
-                    fgKnn = bs_knn.apply(undistorted_img)
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                    cv2.imshow("Pier cam undistorted", undistorted_img)
-                    cv2.rectangle(undistorted_img, (10, 2), (100, 20), (255, 255, 255), -1)
-                    cv2.putText(undistorted_img, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
+                    cv2.rectangle(undistorted_img_s, (10, 2), (100, 20), (255, 255, 255), -1)
+                    cv2.putText(undistorted_img_s, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                    cv2.imshow("Pier cam undistorted", undistorted_img)
+                    cv2.imshow("Pier cam undistorted", undistorted_img_s)
 
-                # fgKnn = bs_knn.apply(img)
+                    # fgKnn = bs_knn.apply(undistorted_img)
 
-                self.select_objects(area, cap, fgKnn, history)
+                    self.select_objects(area, cap, fgKnn, history)
 
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
 
-        # self.save_centroids()
         cv2.destroyAllWindows()
         cap.release()
 
     def select_objects(self, area, cap, fgKnn, history):
         if fgKnn is not None:
-            # fgKnnRs = cv2.resize(fgKnn, (960, 540))  # Resize image
-            fgKnnRs = fgKnn  # No resize image
-
-            cv2.rectangle(fgKnnRs, (10, 2), (140, 20), (255, 255, 255), -1)
-            cv2.putText(fgKnnRs, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-            cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                        (0, 0, 0))
-
-            fgKnnRs = self.get_centroid(area, fgKnnRs, cap, history)
+            fgKnnRs = self.get_centroid(area, fgKnn, cap, history)
 
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
-            # cv2.imshow("Foreground", cv2.resize(fgKnnRs, self.window_size))
+            # cv2.rectangle(fgKnnRs, (10, 2), (140, 20), (255, 255, 255), -1)
+            # cv2.putText(fgKnnRs, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+            # cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+            #             (0, 0, 0))
+            # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             cv2.imshow("Foreground", fgKnnRs)
-        return fgKnnRs
+
 
     def get_centroid(self, area, fgKnnRs, cap, history):
-        (contours, hierarchy) = cv2.findContours(fgKnnRs.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        (contours, hierarchy) = cv2.findContours(fgKnnRs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
         for idx, c in enumerate(contours):
