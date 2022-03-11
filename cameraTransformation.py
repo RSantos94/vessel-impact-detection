@@ -18,7 +18,7 @@ class CameraTransformation:
                 arr = x.split(':')
                 if arr[0] == 'Camera f':
                     camera_f = arr[1].strip()
-                elif arr[0] == 'Camera focal lenght':
+                elif arr[0] == 'Camera focal length':
                     camera_focal_lenght = arr[1].strip()
                 elif arr[0] == 'Camera sensor size':
                     sensor = arr[1].split(',')

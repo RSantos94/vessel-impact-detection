@@ -1,5 +1,5 @@
 Camera f: 1.7
-Camera focal lenght: 28mm
+Camera focal length: 28mm
 Camera sensor size: 6.17, 4.55
 Camera image size: 3840, 2160
 Camera elevation(m): 0.70
