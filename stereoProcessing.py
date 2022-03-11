@@ -36,7 +36,6 @@ class StereoProcessing:
 
         self.cam_group = ct.CameraGroup(cam1.projection, (cam1.orientation, cam2.orientation))
 
-
     def execute(self):
         centroids1 = self.read_file(self.centroid_file_1, self.objects_to_track1)
         centroids2 = self.read_file(self.centroid_file_2, self.objects_to_track2)
@@ -101,11 +100,6 @@ class StereoProcessing:
         with open(centroid_file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
             result = sorted(reader, key=lambda d: int(d['Object ID']))
-
-            object_id = None
-            prev_x = None
-            prev_y = None
-            dist = 0.0
 
             if objects is not None and isinstance(objects, list):
                 return [a for a in result if a['Object ID'] in objects]

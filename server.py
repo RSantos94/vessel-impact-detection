@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
         history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
         history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
-        
+
         # window_size1 = (1280, 720)
         window_size1 = (1980, 1080)
         window_size2 = (1980, 1080)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
             objects_to_track2.append(str(x.split()))
 
         sp.objects_to_track1 = objects_to_track1
-        sp.centroid_file_2 = objects_to_track2
+        sp.objects_to_track2 = objects_to_track2
         sp.configure_points(source1, source2)
         sp.execute()
 
