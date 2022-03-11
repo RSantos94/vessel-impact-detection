@@ -176,13 +176,13 @@ class BackgroundSubtractionKNN:
 
     def create_centroids_file(self):
         header_list = ['fps', 'frame', 'Object ID', 'x', 'y']
-        with open(self.centroid_file, 'w', encoding='UTF8') as f:
+        with open(self.centroid_file, 'w', encoding='UTF8', newline='') as f:
             dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
             dw.writeheader()
 
     def save_centroids(self, fps, frame, object_id, x, y):
 
-        with open(self.centroid_file, 'a', encoding='UTF8') as f:
+        with open(self.centroid_file, 'a', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
             data = [fps, frame, object_id, x, y]
             writer.writerow(data)
