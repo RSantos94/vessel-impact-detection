@@ -118,7 +118,7 @@ def get_bs_param(source_name):
                 detect_shadows_param = False
         elif arr[0] == 'Distance To Threshold':
             dist_2_threshold_param = int(arr[1].strip())
-        elif arr[0] == 'Camera image size':
+        elif arr[0] == 'Object min area':
             object_min_area_param = int(arr[1].strip())
 
     return history_param, detect_shadows_param, dist_2_threshold_param, object_min_area_param
@@ -148,15 +148,7 @@ if __name__ == '__main__':
 
         history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
         history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
-
-        history1 = 20  # piscina gp fica bem
-        detectShadows1 = False  # piscina gp fica bem
-        dist2Threshold1 = 2000  # piscina gp fica bem
-        object_min_area1 = 800  # piscina gp fica bem
-        history2 = 20  # piscina pxl fica bem
-        detectShadows2 = False  # piscina pxl fica bem
-        dist2Threshold2 = 600  # piscina pxl fica bem
-        object_min_area2 = 11000  # piscina pxl fica bem
+        
         # window_size1 = (1280, 720)
         window_size1 = (1980, 1080)
         window_size2 = (1980, 1080)
