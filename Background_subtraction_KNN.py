@@ -65,7 +65,7 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
         cap.release()
 
-    def subtractor(self, lock, area, history, shadows, threshold):
+    def subtractor(self, area, history, shadows, threshold):
         camera_calibration = CameraCalibration(self.video_name)
         camera_calibration.calibrate()
         cap = cv2.VideoCapture(self.video_name)

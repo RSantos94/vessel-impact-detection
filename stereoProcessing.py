@@ -38,8 +38,8 @@ class StereoProcessing:
 
 
     def execute(self):
-        centroids1 = self.read_file(self.centroid_file_1, self.objects_to_track_1)
-        centroids2 = self.read_file(self.centroid_file_2, self.objects_to_track_2)
+        centroids1 = self.read_file(self.centroid_file_1, self.objects_to_track1)
+        centroids2 = self.read_file(self.centroid_file_2, self.objects_to_track2)
 
         fps = None
         object_id = None

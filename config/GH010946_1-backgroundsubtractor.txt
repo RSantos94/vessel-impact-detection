@@ -1,0 +1,4 @@
+History: 20
+Detect Shadows: False
+Distance To Threshold: 2000
+Camera image size: 800

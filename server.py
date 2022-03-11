@@ -6,6 +6,7 @@ from flask import Response
 from flask import render_template
 import tkinter as tk
 from imutils.video import VideoStream
+from os.path import exists
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
 from processCentroids import ProcessCentroids
@@ -101,7 +102,27 @@ def create_bs(source_file, compute_window_size):
 
 
 def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_area):
-    bs.subtractor(lock, centroid_object_min_area, bs_history, detect_shadows, dist_2_threshold)
+    bs.create_centroids_file()
+    bs.subtractor(centroid_object_min_area, bs_history, detect_shadows, dist_2_threshold)
+
+def get_bs_param(source_name):
+    f = open('config/' + source_name + '-backgroundsubtractor.txt', "r")
+    for x in f:
+        arr = x.split(':')
+        if arr[0] == 'History':
+            history_param = int(arr[1].strip())
+        elif arr[0] == 'Detect Shadows':
+            if arr[1].strip().capitalize() == 'TRUE':
+                detect_shadows_param = True
+            else:
+                detect_shadows_param = False
+        elif arr[0] == 'Distance To Threshold':
+            dist_2_threshold_param = int(arr[1].strip())
+        elif arr[0] == 'Camera image size':
+            object_min_area_param = int(arr[1].strip())
+
+    return history_param, detect_shadows_param, dist_2_threshold_param, object_min_area_param
+
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
@@ -125,13 +146,16 @@ if __name__ == '__main__':
         source1 = 'GH010946_1'
         source2 = 'PXL_20220308_141209924_1'
 
+        history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
+        history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
+
         history1 = 20  # piscina gp fica bem
         detectShadows1 = False  # piscina gp fica bem
         dist2Threshold1 = 2000  # piscina gp fica bem
         object_min_area1 = 800  # piscina gp fica bem
         history2 = 20  # piscina pxl fica bem
         detectShadows2 = False  # piscina pxl fica bem
-        dist2Threshold2 = 800  # piscina pxl fica bem
+        dist2Threshold2 = 600  # piscina pxl fica bem
         object_min_area2 = 11000  # piscina pxl fica bem
         # window_size1 = (1280, 720)
         window_size1 = (1980, 1080)
@@ -157,8 +181,8 @@ if __name__ == '__main__':
         run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1)
         run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2)
 
-        objects_to_track1 = []  # ['18']
-        objects_to_track2 = []  # ['18']
+        objects_to_track1 = []
+        objects_to_track2 = []
 
         text1 = input("Object ids to track from first camera (separated by comma):")
         text2 = input("Object ids to track from second camera (separated by comma):")
