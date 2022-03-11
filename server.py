@@ -105,6 +105,7 @@ def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_ar
     bs.create_centroids_file()
     bs.subtractor(centroid_object_min_area, bs_history, detect_shadows, dist_2_threshold)
 
+
 def get_bs_param(source_name):
     f = open('config/' + source_name + '-backgroundsubtractor.txt', "r")
     for x in f:
@@ -143,8 +144,10 @@ if __name__ == '__main__':
     if stereo == 'y':
         # source1 = 'MVI_2438'  # lnec camara
         # source2 = 'GH010731_cut'  # lnec gopro
-        source1 = 'GH010946_1'
-        source2 = 'PXL_20220308_141209924_1'
+        # source1 = 'GH010946_1' # teste piscina 1
+        # source2 = 'PXL_20220308_141209924_1' # teste piscina 1
+        source1 = 'GH010949-cut'  # teste piscina 2
+        source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
 
         history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
         history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
