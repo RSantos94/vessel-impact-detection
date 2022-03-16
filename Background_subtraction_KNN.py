@@ -5,6 +5,7 @@ import csv
 
 from camera_calibration import CameraCalibration
 from centroidTracker import CentroidTracker
+from os.path import exists
 
 
 class BackgroundSubtractionKNN:
@@ -12,6 +13,8 @@ class BackgroundSubtractionKNN:
 
     def __init__(self, source_name, resolution):
         self.video_name = 'video_files/' + source_name + '.MP4'
+        self.camera_calibration = CameraCalibration(self.video_name)
+        self.camera_calibration.calibrate()
         self.screenshot_name = 'screenshot_files/' + source_name
         self.ct = CentroidTracker()
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
@@ -19,8 +22,7 @@ class BackgroundSubtractionKNN:
         self.frames = []
 
     def get_screenshot(self):
-        camera_calibration = CameraCalibration(self.video_name)
-        camera_calibration.calibrate()
+
         cap = cv2.VideoCapture(self.video_name)
 
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
@@ -33,7 +35,7 @@ class BackgroundSubtractionKNN:
             success, img = cap.read()
             frame_counter += 1
 
-            undistorted_img = camera_calibration.undistort(img)
+            undistorted_img = self.camera_calibration.undistort(img)
 
             img_denoise = None
 
@@ -66,8 +68,6 @@ class BackgroundSubtractionKNN:
         cap.release()
 
     def subtractor(self, area, history, shadows, threshold):
-        camera_calibration = CameraCalibration(self.video_name)
-        camera_calibration.calibrate()
         cap = cv2.VideoCapture(self.video_name)
 
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
@@ -90,7 +90,7 @@ class BackgroundSubtractionKNN:
                 imS = cv2.resize(img, self.window_size)  # Resize image
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
-                undistorted_img = camera_calibration.undistort(img)
+                undistorted_img = self.camera_calibration.undistort(img)
                 undistorted_img_s = cv2.resize(undistorted_img, self.window_size)
 
                 cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
@@ -132,7 +132,6 @@ class BackgroundSubtractionKNN:
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             cv2.imshow("Foreground", fgKnnRs)
 
-
     def get_centroid(self, area, fgKnnRs, cap, history):
         (contours, hierarchy) = cv2.findContours(fgKnnRs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
@@ -166,8 +165,8 @@ class BackgroundSubtractionKNN:
                 if history < cap.get(cv2.CAP_PROP_POS_FRAMES):
                     text = "ID {}".format(objectID)
                     cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 0, 255), 2)
-                    cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (100, 0, 255), -1)
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                    cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (255, 0, 0), -1)
 
                     self.save_centroids(int(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID,
                                         centroid[0], centroid[1])
