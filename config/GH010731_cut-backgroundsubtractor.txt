@@ -1,0 +1,21 @@
+# history = 10 #Z3 fica bem
+# detectShadows = False #Z3 fica bem
+# dist2Threshold = 100 #Z3 fica bem
+# object_min_area = 1000 #Z3 fica bem
+history = 20  # lnec gp fica bem
+detectShadows = False  # lnec gp fica bem
+dist2Threshold = 1000  # lnec gp fica bem
+object_min_area = 1200  # lnec gp fica bem
+# history1 = 10  # lnec gp fica bem
+# detectShadows1 = False  # lnec gp fica bem
+# dist2Threshold1 = 1000  # lnec gp fica bem
+# object_min_area1 = 1200  # lnec gp fica bem
+# history2 = 10  # lnec gp fica bem
+# detectShadows2 = False  # lnec gp fica bem
+# dist2Threshold2 = 1000  # lnec gp fica bem
+# object_min_area2 = 1200  # lnec gp fica bem
+
+History: 20
+Detect Shadows: False
+Distance To Threshold: 1000
+Object min area: 1200
