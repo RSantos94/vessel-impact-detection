@@ -142,6 +142,9 @@ if __name__ == '__main__':
     stereo = input("Stereo (y/n)?:")
 
     if stereo == 'y':
+        source1 = input("Video file 1 name:")
+        source2 = input("Video file 2 name:")
+
         # source1 = 'MVI_2438'  # lnec camara
         # source2 = 'GH010731_cut'  # lnec gopro
         # source1 = 'GH010946_1' # teste piscina 1
@@ -196,25 +199,13 @@ if __name__ == '__main__':
         sp.execute()
 
     else:
+        source = input("Video file name:")
+
         # source = 'MVI_2438' #lnec camara
         source = 'GH010731_cut'  # lnec gopro
         # source = 'GH010890' #Z3
-        # history = 10 #Z3 fica bem
-        # detectShadows = False #Z3 fica bem
-        # dist2Threshold = 100 #Z3 fica bem
-        # object_min_area = 1000 #Z3 fica bem
-        history = 20  # lnec gp fica bem
-        detectShadows = False  # lnec gp fica bem
-        dist2Threshold = 1000  # lnec gp fica bem
-        object_min_area = 1200  # lnec gp fica bem
-        # history1 = 10  # lnec gp fica bem
-        # detectShadows1 = False  # lnec gp fica bem
-        # dist2Threshold1 = 1000  # lnec gp fica bem
-        # object_min_area1 = 1200  # lnec gp fica bem
-        # history2 = 10  # lnec gp fica bem
-        # detectShadows2 = False  # lnec gp fica bem
-        # dist2Threshold2 = 1000  # lnec gp fica bem
-        # object_min_area2 = 1200  # lnec gp fica bem
+
+        history, detectShadows, dist2Threshold, object_min_area = get_bs_param(source)
 
         bs = create_bs(source, window_size)
 
