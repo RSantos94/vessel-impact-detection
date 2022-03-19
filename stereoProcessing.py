@@ -99,10 +99,16 @@ class StereoProcessing:
     def read_file(self, centroid_file, objects):
         with open(centroid_file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
-            result = sorted(reader, key=lambda d: int(d['Object ID']))
+            result = sorted(reader, key=lambda d: (int(d['Object ID']),  int(d['frame'])))
+
 
             if objects is not None and isinstance(objects, list):
-                return [a for a in result if a['Object ID'] in objects]
+                return_val = []
+                for a in result:
+                    if a['Object ID'] in objects:
+                        return_val.append(a)
+
+                return return_val
             else:
                 return result
 

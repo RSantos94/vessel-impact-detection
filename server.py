@@ -187,11 +187,13 @@ if __name__ == '__main__':
 
         arr1 = text1.split(',')
         for x in arr1:
-            objects_to_track1.append(str(x.split()))
+            if x != '':
+                objects_to_track1.append(x)
 
         arr2 = text2.split(',')
         for x in arr2:
-            objects_to_track2.append(str(x.split()))
+            if x != '':
+                objects_to_track2.append(x)
 
         sp.objects_to_track1 = objects_to_track1
         sp.objects_to_track2 = objects_to_track2
