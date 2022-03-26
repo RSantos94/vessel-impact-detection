@@ -1,5 +1,7 @@
 import threading
 
+import sys
+
 import cv2
 from flask import Flask
 from flask import Response
@@ -107,23 +109,27 @@ def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_ar
 
 
 def get_bs_param(source_name):
-    f = open('config/' + source_name + '-backgroundsubtractor.txt', "r")
-    for x in f:
-        arr = x.split(':')
-        if arr[0] == 'History':
-            history_param = int(arr[1].strip())
-        elif arr[0] == 'Detect Shadows':
-            if arr[1].strip().capitalize() == 'TRUE':
-                detect_shadows_param = True
-            else:
-                detect_shadows_param = False
-        elif arr[0] == 'Distance To Threshold':
-            dist_2_threshold_param = int(arr[1].strip())
-        elif arr[0] == 'Object min area':
-            object_min_area_param = int(arr[1].strip())
+    try:
+        f = open('config/' + source_name + '-backgroundsubtractor.txt', "r")
+        for x in f:
+            arr = x.split(':')
+            if arr[0] == 'History':
+                history_param = int(arr[1].strip())
+            elif arr[0] == 'Detect Shadows':
+                if arr[1].strip().capitalize() == 'TRUE':
+                    detect_shadows_param = True
+                else:
+                    detect_shadows_param = False
+            elif arr[0] == 'Distance To Threshold':
+                dist_2_threshold_param = int(arr[1].strip())
+            elif arr[0] == 'Object min area':
+                object_min_area_param = int(arr[1].strip())
 
-    return history_param, detect_shadows_param, dist_2_threshold_param, object_min_area_param
+        return history_param, detect_shadows_param, dist_2_threshold_param, object_min_area_param
 
+    except FileNotFoundError:
+        print('O ficheiro ' + source_name + '-backgroundsubtractor.txt não existe!')
+        sys.exit(0)
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
@@ -149,8 +155,10 @@ if __name__ == '__main__':
         # source2 = 'GH010731_cut'  # lnec gopro
         # source1 = 'GH010946_1' # teste piscina 1
         # source2 = 'PXL_20220308_141209924_1' # teste piscina 1
-        source1 = 'GH010949-cut'  # teste piscina 2
-        source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
+        #source1 = 'GH010949-cut'  # teste piscina 2
+        #source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
+        source1 = 'GH010954_1'  # teste piscina tupperware 1
+        source2 = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
         history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
         history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
