@@ -168,7 +168,7 @@ class BackgroundSubtractionKNN:
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
                     cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (255, 0, 0), -1)
 
-                    self.save_centroids(int(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID,
+                    self.save_centroids(float(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID,
                                         centroid[0], centroid[1])
 
         return fgKnnRs
