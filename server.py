@@ -13,6 +13,7 @@ from os.path import exists
 from Background_subtraction_KNN import BackgroundSubtractionKNN
 from processCentroids import ProcessCentroids
 from stereoProcessing import StereoProcessing
+from interpolate_centroids import InterpolateCentroids
 
 outputFrame = None
 bs1 = None
@@ -186,6 +187,9 @@ if __name__ == '__main__':
 
         run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1)
         run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2)
+
+        ic = InterpolateCentroids(source1, source2)
+        ic.execute()
 
         objects_to_track1 = []
         objects_to_track2 = []
