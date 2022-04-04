@@ -1,0 +1,9 @@
+Camera f: 1.7
+Camera focal length: 28mm
+Camera sensor size: 6.17, 4.55
+Camera image size: 3840, 2160
+Camera elevation(m): 0.33
+Camera tilt(deg): 77
+Camera heading(deg): -62
+Camera position x (m): 0.915
+Camera position y (m): 0

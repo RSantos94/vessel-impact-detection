@@ -1,4 +1,4 @@
 History: 20
 Detect Shadows: False
-Distance To Threshold: 600
-Object min area: 800
+Distance To Threshold: 300
+Object min area: 100

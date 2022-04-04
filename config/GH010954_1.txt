@@ -1,0 +1,9 @@
+Camera f: 2.80
+Camera focal length: 15
+Camera sensor size: 6.17, 4.55
+Camera image size: 3840, 2160
+Camera elevation(m): 0.495
+Camera tilt(deg): 56
+Camera heading(deg): 70
+Camera position x (m): 0
+Camera position y (m): 0
