@@ -7,19 +7,32 @@ import numpy as np
 
 class CameraCalibration:
 
-    def __init__(self, video_name):
+    def __init__(self, source_name, os_name):
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+
+        if os_name == "Windows":
+            self.mtx_config_file = path + '\\Camera calibration\\' + source_name[0:2] + '-mtx.csv'
+            self.dist_config_file = path + '\\Camera calibration\\' + source_name[0:2] + '-dist.csv'
+            self.video_name = path + '\\video_files\\' + source_name + '.MP4'
+
+        else:
+            self.mtx_config_file = 'Camera calibration/' + source_name[0:2] + '-mtx.csv'
+            self.dist_config_file = 'Camera calibration/' + source_name[0:2] + '-dist.csv'
+            self.video_name = 'video_files/' + source_name + '.MP4'
+
         self.dist = None
         self.mtx = None
-        self.video_name = video_name
+        self.video_name_prefix = source_name[0:2]
 
     def calibrate(self):
 
-        if os.path.isfile('Camera calibration/' + self.video_name[12:14] + '-mtx.csv') and os.path.isfile(
-                'Camera calibration/' + self.video_name[12:14] + '-dist.csv'):
+        if os.path.isfile(self.mtx_config_file) and os.path.isfile(
+                self.dist_config_file):
             # data = pd.read_csv('Camera calibration/' + self.video_name[12:14] + '.csv')
 
-            self.mtx = np.loadtxt('Camera calibration/' + self.video_name[12:14] + '-mtx.csv', delimiter=',')
-            self.dist = np.loadtxt('Camera calibration/' + self.video_name[12:14] + '-dist.csv', delimiter=',')
+            self.mtx = np.loadtxt(self.mtx_config_file, delimiter=',')
+            self.dist = np.loadtxt(self.dist_config_file, delimiter=',')
 
         else:
             # termination criteria
@@ -31,9 +44,9 @@ class CameraCalibration:
             objpoints = []  # 3d point in real world space
             imgpoints = []  # 2d points in image plane.
             gray = None
-            if self.video_name[12:14] == 'GH':
+            if self.video_name_prefix == 'GH':
                 images = glob.glob('Camera calibration/cam_calibration/gopro/*.jpg')
-            elif self.video_name[12:14] == 'PX':
+            elif self.video_name_prefix == 'PX':
                 images = glob.glob('Camera calibration/cam_calibration/pxl/*.jpg')
             else:
                 images = None  # = glob.glob('video_files/cam_calibration/gopro/2/*.jpg')
@@ -59,9 +72,9 @@ class CameraCalibration:
                 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
                 mtx_array = np.asarray(mtx)
-                np.savetxt('Camera calibration/' + self.video_name[12:14] + '-mtx.csv', mtx_array, delimiter=',')
+                np.savetxt(self.mtx_config_file, mtx_array, delimiter=',')
                 dist_array = np.asarray(dist)
-                np.savetxt('Camera calibration/' + self.video_name[12:14] + '-dist.csv', dist_array, delimiter=',')
+                np.savetxt(self.dist_config_file, dist_array, delimiter=',')
 
                 self.mtx = mtx
                 self.dist = dist

@@ -1,4 +1,5 @@
 import csv
+import os
 
 import cameratransform as ct
 import numpy as np
@@ -21,9 +22,18 @@ def get_points(source):
 
 class StereoProcessing:
 
-    def __init__(self, source1, source2):
-        self.centroid_file_1 = 'results/' + source1 + '-centroids.csv'
-        self.centroid_file_2 = 'results/' + source2 + '-centroids.csv'
+    def __init__(self, source1, source2, os_name):
+        self.os_name = os_name
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+
+        if os_name == "Windows":
+            self.centroid_file_1 = path + '\\results\\' + source1 + '-centroids.csv'
+            self.centroid_file_2 = path + '\\results\\' + source2 + '-centroids.csv'
+        else:
+            self.centroid_file_1 = 'results/' + source1 + '-centroids.csv'
+            self.centroid_file_2 = 'results/' + source2 + '-centroids.csv'
+
         self.objects_to_track1 = []
         self.objects_to_track2 = []
 
@@ -119,4 +129,10 @@ class StereoProcessing:
         self.cam_group.addPointCorrespondenceInformation(corresponding1, corresponding2)
 
     def has_points_file(self, source):
-        return exists('config/' + source + '-points.txt')
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+        if self.os_name == "Windows":
+            return exists(path + '\\config\\' + source + '-points.txt')
+        else:
+            return exists('config/' + source + '-points.txt')
+

@@ -1,3 +1,5 @@
+import os
+import platform
 import threading
 
 import sys
@@ -100,8 +102,8 @@ def gen_frames():
                 yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n'
 
 
-def create_bs(source_file, compute_window_size):
-    return BackgroundSubtractionKNN(source_file, compute_window_size)
+def create_bs(source_file, compute_window_size, os_name):
+    return BackgroundSubtractionKNN(source_file, compute_window_size, os_name)
 
 
 def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_area):
@@ -110,8 +112,16 @@ def run(bs, bs_history, detect_shadows, dist_2_threshold, centroid_object_min_ar
 
 
 def get_bs_param(source_name):
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+
+    if os_name == "Windows":
+        bs_config_file_name = path + '\\config\\' + source_name + '-backgroundsubtractor.txt'
+    else:
+        bs_config_file_name = 'config/' + source_name + '-backgroundsubtractor.txt'
+
     try:
-        f = open('config/' + source_name + '-backgroundsubtractor.txt', "r")
+        f = open(bs_config_file_name, "r")
         for x in f:
             arr = x.split(':')
             if arr[0] == 'History':
@@ -148,6 +158,7 @@ if __name__ == '__main__':
     # objects_to_track = None
     stereo = input("Stereo (y/n)?:")
 
+    os_name = platform.system()
     if stereo == 'y':
         source1 = input("Video file 1 name:")
         source2 = input("Video file 2 name:")
@@ -170,8 +181,8 @@ if __name__ == '__main__':
 
         # frame = []
 
-        bs1 = create_bs(source1, window_size1)
-        bs2 = create_bs(source2, window_size2)
+        bs1 = create_bs(source1, window_size1, os_name)
+        bs2 = create_bs(source2, window_size2, os_name)
 
         sp = StereoProcessing(source1, source2)
 

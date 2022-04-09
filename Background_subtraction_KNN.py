@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import imutils
 
@@ -11,13 +13,26 @@ from os.path import exists
 class BackgroundSubtractionKNN:
     outputFrame = None
 
-    def __init__(self, source_name, resolution):
-        self.video_name = 'video_files/' + source_name + '.MP4'
-        self.camera_calibration = CameraCalibration(self.video_name)
+    def __init__(self, source_name, resolution, os_name):
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+
+        if os_name == "Windows":
+            self.video_name = path + '\\video_files\\' + source_name + '.MP4'
+            self.video_undistorted_name = path + '\\video_files\\' + source_name + '-undistorted.MP4'
+            self.screenshot_name = path + '\\screenshot_files\\' + source_name
+            self.centroid_file = path + '\\results\\' + source_name + '-centroids.csv'
+        else:
+            self.video_name = 'video_files/' + source_name + '.MP4'
+            self.video_undistorted_name = 'video_files/' + source_name + '-undistorted.MP4'
+            self.screenshot_name = 'screenshot_files/' + source_name
+            self.centroid_file = 'results/' + source_name + '-centroids.csv'
+
+        self.camera_calibration = CameraCalibration(source_name, os_name)
         self.camera_calibration.calibrate()
-        self.screenshot_name = 'screenshot_files/' + source_name
+
         self.ct = CentroidTracker()
-        self.centroid_file = 'results/' + source_name + '-centroids.csv'
+
         self.window_size = resolution
         self.frames = []
 
