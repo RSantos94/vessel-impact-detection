@@ -142,6 +142,7 @@ def get_bs_param(source_name):
         print('O ficheiro ' + source_name + '-backgroundsubtractor.txt não existe!')
         sys.exit(0)
 
+
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', port=8000, debug=True)
@@ -167,10 +168,10 @@ if __name__ == '__main__':
         # source2 = 'GH010731_cut'  # lnec gopro
         # source1 = 'GH010946_1' # teste piscina 1
         # source2 = 'PXL_20220308_141209924_1' # teste piscina 1
-        #source1 = 'GH010949-cut'  # teste piscina 2
-        #source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
-        source1 = 'GH010954_1'  # teste piscina tupperware 1
-        source2 = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
+        source1 = 'GH010949-cut'  # teste piscina 2
+        source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
+        # source1 = 'GH010954_1'  # teste piscina tupperware 1
+        # source2 = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
         history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
         history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
@@ -179,28 +180,29 @@ if __name__ == '__main__':
         window_size1 = (1980, 1080)
         window_size2 = (1980, 1080)
 
+
         # frame = []
 
         bs1 = create_bs(source1, window_size1, os_name)
         bs2 = create_bs(source2, window_size2, os_name)
 
-        sp = StereoProcessing(source1, source2)
+        # sp = StereoProcessing(source1, source2)
 
-        if sp.has_points_file(source1) is not True:
-            bs1.get_screenshot()
-            bs2.frames = bs1.frames
+        #if sp.has_points_file(source1) is not True:
+            #bs1.get_screenshot()
+            #bs2.frames = bs1.frames
 
-        if sp.has_points_file(source2) is not True:
-            bs2.get_screenshot()
+        #if sp.has_points_file(source2) is not True:
+            #bs2.get_screenshot()
 
-        if sp.has_points_file(source1) is not True and sp.has_points_file(source2) is not True:
-            input("Create corresponding points file at config/{source}-points.txt and press enter")
+        #if sp.has_points_file(source1) is not True and sp.has_points_file(source2) is not True:
+            #input("Create corresponding points file at config/{source}-points.txt and press enter")
 
-        run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1)
-        run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2)
+        #bs1.create_undistorted_video_file()
+        #bs2.create_undistorted_video_file()
 
-        ic = InterpolateCentroids(source1, source2)
-        ic.execute()
+        # run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1)
+        # run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2)
 
         objects_to_track1 = []
         objects_to_track2 = []
@@ -218,10 +220,15 @@ if __name__ == '__main__':
             if x != '':
                 objects_to_track2.append(x)
 
-        sp.objects_to_track1 = objects_to_track1
-        sp.objects_to_track2 = objects_to_track2
-        sp.configure_points(source1, source2)
-        sp.execute()
+        ic = InterpolateCentroids(source1, source2, os_name)
+        ic.objects_to_track1 = objects_to_track1
+        ic.objects_to_track2 = objects_to_track2
+        ic.execute()
+
+        #sp.objects_to_track1 = objects_to_track1
+        #sp.objects_to_track2 = objects_to_track2
+        #sp.configure_points(source1, source2)
+        #sp.execute()
 
     else:
         source = input("Video file name:")
