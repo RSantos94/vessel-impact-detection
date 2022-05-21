@@ -5,6 +5,7 @@ import cv2
 import cv2 as cv
 import numpy as np
 
+
 class CameraCalibration:
 
     def __init__(self, source_name, os_name):
@@ -57,14 +58,14 @@ class CameraCalibration:
                     # Find the chess board corners
                     ret, corners = cv.findChessboardCorners(gray, (9, 6), None)
                     # If found, add object points, image points (after refining them)
-                    if ret == True:
+                    if ret:
                         objpoints.append(objp)
                         corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
                         imgpoints.append(corners)
                         # Draw and display the corners
                         cv.drawChessboardCorners(img, (7, 5), corners2, ret)
-                        imS = cv2.resize(img, (960, 540))
-                        cv.imshow('img', imS)
+                        im_s = cv2.resize(img, (960, 540))
+                        cv.imshow('img', im_s)
                         cv.waitKey(500)
                 cv.destroyAllWindows()
 

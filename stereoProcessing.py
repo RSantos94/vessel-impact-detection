@@ -20,6 +20,22 @@ def get_points(source):
     return landmarks
 
 
+def read_file(centroid_file, objects):
+    with open(centroid_file, encoding='UTF8') as f:
+        reader = csv.DictReader(f)
+        result = sorted(reader, key=lambda d: (int(d['Object ID']), int(d['frame'])))
+
+        if objects is not None and isinstance(objects, list):
+            return_val = []
+            for a in result:
+                if a['Object ID'] in objects:
+                    return_val.append(a)
+
+            return return_val
+        else:
+            return result
+
+
 class StereoProcessing:
 
     def __init__(self, source1, source2, os_name):
@@ -47,8 +63,8 @@ class StereoProcessing:
         self.cam_group = ct.CameraGroup(cam1.projection, (cam1.orientation, cam2.orientation))
 
     def execute(self):
-        centroids1 = self.read_file(self.centroid_file_1, self.objects_to_track1)
-        centroids2 = self.read_file(self.centroid_file_2, self.objects_to_track2)
+        centroids1 = read_file(self.centroid_file_1, self.objects_to_track1)
+        centroids2 = read_file(self.centroid_file_2, self.objects_to_track2)
 
         fps = None
         object_id = None
@@ -91,36 +107,18 @@ class StereoProcessing:
                     object_end_pos2.append(pos2)
                     frames.append(int(row1['frame']))
 
-
-
                 else:
                     points1_start = np.array(object_start_pos1)
                     points1_end = np.array(object_end_pos1)
                     points2_start = np.array(object_start_pos2)
                     points2_end = np.array(object_end_pos2)
 
-                    points_start_3D = self.cam_group.spaceFromImages(points1_start, points2_start)
-                    points_end_3D = self.cam_group.spaceFromImages(points1_end, points2_end)
+                    points_start_3d = self.cam_group.spaceFromImages(points1_start, points2_start)
+                    points_end_3d = self.cam_group.spaceFromImages(points1_end, points2_end)
 
-                    distances = np.linalg.norm(points_end_3D - points_start_3D, axis=-1)
+                    distances = np.linalg.norm(points_end_3d - points_start_3d, axis=-1)
                     print('Object ' + object_id + ' total distance is: ' + str(distances))
                     object_id = None
-
-    def read_file(self, centroid_file, objects):
-        with open(centroid_file, encoding='UTF8') as f:
-            reader = csv.DictReader(f)
-            result = sorted(reader, key=lambda d: (int(d['Object ID']),  int(d['frame'])))
-
-
-            if objects is not None and isinstance(objects, list):
-                return_val = []
-                for a in result:
-                    if a['Object ID'] in objects:
-                        return_val.append(a)
-
-                return return_val
-            else:
-                return result
 
     def configure_points(self, source1, source2):
         corresponding1 = np.array(get_points(source1))
@@ -135,4 +133,3 @@ class StereoProcessing:
             return exists(path + '\\config\\' + source + '-points.txt')
         else:
             return exists('config/' + source + '-points.txt')
-

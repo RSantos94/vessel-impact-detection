@@ -5,14 +5,15 @@ from scipy.spatial import distance
 
 from cameraTransformation import CameraTransformation
 
+
 class ProcessCentroids:
 
     def __init__(self, source_name, objects_to_track):
         self.centroid_file = 'results/' + source_name + '-centroids.csv'
         self.objects_to_track = objects_to_track
 
-        #self.ct = CameraTransformation(source_name)
-        #self.ct.configure()
+        # self.ct = CameraTransformation(source_name)
+        # self.ct.configure()
 
     def execute(self):
         with open(self.centroid_file, encoding='UTF8') as f:
@@ -39,7 +40,7 @@ class ProcessCentroids:
                 if object_id == row['Object ID']:
                     a = np.array((prev_x, prev_y))
                     b = np.array((float(row['x']), float(row['y'])))
-                    #print(np.linalg.norm(a - b))
+                    # print(np.linalg.norm(a - b))
                     dist = dist + np.linalg.norm(a - b)
 
                 else:
@@ -48,8 +49,8 @@ class ProcessCentroids:
                     prev_x = float(row['x'])
                     prev_y = float(row['y'])
                     dist = 0.0
-                #print(row)
-                #if row['Object ID'] == '18':
-                   # print(row)
+                # print(row)
+                # if row['Object ID'] == '18':
+                # print(row)
 
             print('Object ' + object_id + ' total distance is: ' + str(dist))

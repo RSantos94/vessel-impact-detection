@@ -1,4 +1,5 @@
 import os
+import sys
 
 import cv2
 import imutils
@@ -31,10 +32,33 @@ class BackgroundSubtractionKNN:
         self.camera_calibration = CameraCalibration(source_name, os_name)
         self.camera_calibration.calibrate()
 
+        self.source_name = source_name
         self.ct = CentroidTracker()
-
+        self.os_name = os_name
         self.window_size = resolution
         self.frames = []
+
+    def create_undistorted_video_file(self):
+        cap = cv2.VideoCapture(self.video_name)
+
+        fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        writer = cv2.VideoWriter(self.video_undistorted_name, fourcc, fps, size)
+
+        while cap.isOpened():
+            success, img = cap.read()
+
+            if not success:
+                break
+
+            undistorted_img = self.camera_calibration.undistort(img)
+            writer.write(undistorted_img)
+
+        cv2.destroyAllWindows()
+        cap.release()
 
     def get_screenshot(self):
 
@@ -82,12 +106,14 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
         cap.release()
 
-    def subtractor(self, area, history, shadows, threshold):
+    def subtractor(self, is_test):
+
+        history, detect_shadows, dist_2_threshold, centroid_object_min_area = self.get_bs_param(self.source_name)
         cap = cv2.VideoCapture(self.video_name)
 
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
 
-        bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=shadows, dist2Threshold=threshold)
+        bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=detect_shadows, dist2Threshold=dist_2_threshold)
 
         # tracker = cv2.TrackerMOSSE_create()
         while cap.isOpened():
@@ -126,7 +152,7 @@ class BackgroundSubtractionKNN:
 
                     # fgKnn = bs_knn.apply(undistorted_img)
 
-                    self.select_objects(area, cap, fgKnn, history)
+                    self.select_objects(centroid_object_min_area, cap, fgKnn, history, is_test)
 
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
@@ -134,21 +160,21 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
         cap.release()
 
-    def select_objects(self, area, cap, fgKnn, history):
-        if fgKnn is not None:
-            fgKnnRs = self.get_centroid(area, fgKnn, cap, history)
+    def select_objects(self, area, cap, fg_knn, history, is_test):
+        if fg_knn is not None:
+            fg_knn_rs = self.get_centroid(area, fg_knn, cap, history, is_test)
 
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
-            # cv2.rectangle(fgKnnRs, (10, 2), (140, 20), (255, 255, 255), -1)
-            # cv2.putText(fgKnnRs, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
+            # cv2.rectangle(fg_knn_rs, (10, 2), (140, 20), (255, 255, 255), -1)
+            # cv2.putText(fg_knn_rs, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
             #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-            # cv2.putText(fgKnnRs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+            # cv2.putText(fg_knn_rs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
             #             (0, 0, 0))
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
-            cv2.imshow("Foreground", fgKnnRs)
+            cv2.imshow("Foreground", fg_knn_rs)
 
-    def get_centroid(self, area, fgKnnRs, cap, history):
-        (contours, hierarchy) = cv2.findContours(fgKnnRs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    def get_centroid(self, area, fg_knn_rs, cap, history, is_test):
+        (contours, hierarchy) = cv2.findContours(fg_knn_rs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
         for idx, c in enumerate(contours):
@@ -163,7 +189,7 @@ class BackgroundSubtractionKNN:
             (x, y, w, h) = cv2.boundingRect(c)
 
             # draw bounding box
-            cv2.rectangle(fgKnnRs, (x, y), (x + w, y + h), (100, 0, 255), 2)
+            cv2.rectangle(fg_knn_rs, (x, y), (x + w, y + h), (100, 0, 255), 2)
 
             rects.append([x, y, x + w, y + h])
 
@@ -179,14 +205,16 @@ class BackgroundSubtractionKNN:
 
                 if history < cap.get(cv2.CAP_PROP_POS_FRAMES):
                     text = "ID {}".format(objectID)
-                    cv2.putText(fgKnnRs, text, (centroid[0] - 10, centroid[1] - 10),
+                    cv2.putText(fg_knn_rs, text, (centroid[0] - 10, centroid[1] - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-                    cv2.circle(fgKnnRs, (centroid[0], centroid[1]), 4, (255, 0, 0), -1)
+                    cv2.circle(fg_knn_rs, (centroid[0], centroid[1]), 4, (255, 0, 0), -1)
 
-                    self.save_centroids(float(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)), objectID,
-                                        centroid[0], centroid[1])
+                    if not is_test:
+                        self.save_centroids(float(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)),
+                                            objectID,
+                                            centroid[0], centroid[1])
 
-        return fgKnnRs
+        return fg_knn_rs
 
     def create_centroids_file(self):
         header_list = ['fps', 'frame', 'Object ID', 'x', 'y']
@@ -200,3 +228,34 @@ class BackgroundSubtractionKNN:
             writer = csv.writer(f)
             data = [fps, frame, object_id, x, y]
             writer.writerow(data)
+
+    def get_bs_param(self, source_name):
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+
+        if self.os_name == "Windows":
+            bs_config_file_name = path + '\\config\\' + source_name + '-backgroundsubtractor.txt'
+        else:
+            bs_config_file_name = 'config/' + source_name + '-backgroundsubtractor.txt'
+
+        try:
+            f = open(bs_config_file_name, "r")
+            for x in f:
+                arr = x.split(':')
+                if arr[0] == 'History':
+                    history_param = int(arr[1].strip())
+                elif arr[0] == 'Detect Shadows':
+                    if arr[1].strip().capitalize() == 'TRUE':
+                        detect_shadows_param = True
+                    else:
+                        detect_shadows_param = False
+                elif arr[0] == 'Distance To Threshold':
+                    dist_2_threshold_param = int(arr[1].strip())
+                elif arr[0] == 'Object min area':
+                    object_min_area_param = int(arr[1].strip())
+
+            return history_param, detect_shadows_param, dist_2_threshold_param, object_min_area_param
+
+        except FileNotFoundError:
+            print('O ficheiro ' + source_name + '-backgroundsubtractor.txt não existe!')
+            sys.exit(0)

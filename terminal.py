@@ -1,16 +1,7 @@
 import os
 import platform
-import threading
 
 import sys
-
-import cv2
-from flask import Flask
-from flask import Response
-from flask import render_template
-import tkinter as tk
-from imutils.video import VideoStream
-from os.path import exists
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
 from processCentroids import ProcessCentroids
@@ -23,96 +14,20 @@ bs2 = None
 bsz3 = None
 cap1 = None
 cap2 = None
-lock = threading.Lock()
-app = Flask(__name__)
 
 
-@app.route("/")
-def web_page():
-    # return the rendered template
-    return render_template("impactDetection.html")
-
-
-@app.route("/video_feed_1")
-def video_feed_1():
-    # return the response generated along with the specific media
-    # type (mime type)
-    global bs1
-    return Response(generate(bs1),
-                    mimetype="multipart/x-mixed-replace; boundary=frame")
-
-
-@app.route("/video_feed_2")
-def video_feed_2():
-    # return the response generated along with the specific media
-    # type (mime type)
-    global bs2
-    return Response(generate(bs2),
-                    mimetype="multipart/x-mixed-replace; boundary=frame")
-
-
-@app.route("/video_feed_test")
-def video_feed_test():
-    # return the response generated along with the specific media
-    # type (mime type)
-    global bs2
-    return Response(gen_frames(),
-                    mimetype="multipart/x-mixed-replace; boundary=frame")
-
-
-def generate(bs):
-    # grab global references to the output frame and lock variables
-    global outputFrame, lock
-    # loop over frames from the output stream
-    while True:
-        # wait until the lock is acquired
-        with lock:
-            if bs is None:
-                continue
-
-            outputFrame = bs.frame()
-            # check if the output frame is available, otherwise skip
-            # the iteration of the loop
-            if outputFrame is None:
-                continue
-            # encode the frame in JPEG format
-            (flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
-            # ensure the frame was successfully encoded
-            if not flag:
-                continue
-        # yield the output frame in the byte format
-        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
-               bytearray(encodedImage) + b'\r\n')
-
-
-def gen_frames():
-    global cap1
-
-    while True:
-        if cap1 is None:
-            continue
-        else:
-            success, frame_test = cap1.read()  # read the camera frame
-            if not success:
-                break
-            else:
-                resized_frame = cv2.resize(frame_test, (960, 540))
-                ret, buffer = cv2.imencode('.jpg', resized_frame)
-                resized_frame = buffer.tobytes()
-                yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + resized_frame + b'\r\n'
-
-
-def create_bs(source_file, compute_window_size, os_name):
-    return BackgroundSubtractionKNN(source_file, compute_window_size, os_name)
+def create_bs(source_name, compute_window_size, os_name):
+    return BackgroundSubtractionKNN(source_name, compute_window_size, os_name)
 
 
 def run(bs, is_test):
     bs.create_centroids_file()
     bs.subtractor(is_test)
 
+
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    # app.run(host='0.0.0.0', port=8000, debug=True)
 
     # stereo = True
 
@@ -153,6 +68,9 @@ if __name__ == '__main__':
             source2 = 'PXL_20220311_123649450-cut'  # teste piscina 2
             # source1 = 'GH010954_1'  # teste piscina tupperware 1
             # source2 = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
+
+            history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
+            history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
 
             # window_size1 = (1280, 720)
             window_size1 = (1980, 1080)
