@@ -1,12 +1,11 @@
 from os.path import exists
 import csv
 import numpy as np
-import spline
+
+import reports
 import os
 
-from csaps import csaps
-
-from scipy.interpolate import UnivariateSpline
+from spline import get_natural_cubic_spline_model
 
 
 class InterpolateCentroids:
@@ -29,21 +28,23 @@ class InterpolateCentroids:
 
         self.objects_to_track1 = []
         self.objects_to_track2 = []
+        self.source1 = source1
+        self.source2 = source2
 
     def execute(self):
         if self.has_points_file(self.centroid_file_1):
-            self.interpolate_file(self.centroid_file_1, self.objects_to_track1)
+            self.interpolate_file(self.centroid_file_1, self.objects_to_track1, self.source1)
         else:
             print('O ficheiro ' + self.centroid_file_1 + ' não existe')
         if self.has_points_file(self.centroid_file_2):
-            self.interpolate_file(self.centroid_file_2, self.objects_to_track1)
+            self.interpolate_file(self.centroid_file_2, self.objects_to_track2, self.source2)
         else:
             print('O ficheiro ' + self.centroid_file_2 + ' não existe')
 
     def has_points_file(self, source):
         return exists(source)
 
-    def interpolate_file(self, file, objects_to_track):
+    def interpolate_file(self, file, objects_to_track, source):
         with open(file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
             result = sorted(reader, key=lambda d: (int(d['Object ID']), int(d['frame'])))
@@ -54,7 +55,7 @@ class InterpolateCentroids:
             fps = None
             curr_object_x = []
             curr_object_y = []
-            frames = []
+            curr_object_frames = []
             for a in result:
                 if fps is None:
                     fps = a['fps']
@@ -66,7 +67,7 @@ class InterpolateCentroids:
                     if a['Object ID'] == curr_object:
                         curr_object_x.append(float(a['x']))
                         curr_object_y.append(float(a['y']))
-                        frames.append(int(a['frame']))
+                        curr_object_frames.append(int(a['frame']))
 
                         if curr_min_frame is None:
                             curr_min_frame = a['frame']
@@ -81,38 +82,44 @@ class InterpolateCentroids:
                             curr_max_frame = a['frame']
 
                     elif a['Object ID'] != curr_object:
-                        knots = int(curr_max_frame) - int(curr_min_frame) + 1
+                        list_x, list_y, list_frames = self.remove_duplicates(curr_object_x, curr_object_y,
+                                                                             curr_object_frames)
 
-                        np.random.seed(1234)
-                        theta = np.linspace(0, 2 * np.pi, 35)
-                        x = np.array(curr_object_x)
-                        y = np.array(curr_object_y)
-                        data = [x, y]
-                        theta_i = np.linspace(0, 2 * np.pi, 200)
+                        array_x = np.array(list_x)
+                        array_y = np.array(list_y)
+                        array_frames = np.array(list_frames)
+                        x, y = self.spline(array_x, array_y, array_frames, source, curr_object)
 
-                        data_i = self.spline(x, y, theta_i, smooth=0.95)
-
-                        points = self.stack_coordinates(curr_object_x, curr_object_y)
+                        points = self.stack_coordinates(x, y)
 
                         distance = self.cumulative_sum(points)
                         distance = self.calc_distance(distance)
 
                         # Build a list of the spline function, one for each dimension:
-                        splines = self.calc_splines(distance, points)
+                        # splines = self.calc_splines(distance, points)
 
-                        points_fitted = np.vstack(spl(frames) for spl in splines).T
+                        # points_fitted = np.vstack(spl(curr_object_frames) for spl in splines).T
 
                         # for cent in points_fitted:
 
-                        # frames = np.arange(curr_min_frame, curr_max_frame, 1)
+                        # frames = np.arrange(curr_min_frame, curr_max_frame, 1)
                         # res = interpolate.bisplrep(curr_object_x, curr_object_y, frames)
                         curr_object_x = []
-                        curr_object_x = []
-                        frames = []
+                        curr_object_y = []
+                        curr_object_frames = []
                         curr_object = a['Object ID']
 
-    def spline(self, theta=None, data=None, theta_i=None, smooth=None):
-        return csaps(theta, data, theta_i, smooth)
+    def spline(self, x=None, y=None, frames=None, source=None, current=None):
+        nodes = max(frames) - min(frames)
+
+        spline_x = get_natural_cubic_spline_model(x=frames, y=x, minval=min(frames), maxval=max(frames),
+                                                  n_knots=nodes)
+        spline_y = get_natural_cubic_spline_model(x=frames, y=y, minval=min(frames), maxval=max(frames),
+                                                  n_knots=nodes)
+        x_est = spline_x.predict(frames)
+        y_est = spline_y.predict(frames)
+
+        return x_est, y_est
 
     def stack_coordinates(self, x, y):
         return np.vstack((x, y)).T
@@ -132,5 +139,25 @@ class InterpolateCentroids:
     def calc_distance(self, distance):
         return np.insert(distance, 0, 0) / distance[-1]
 
-    def calc_splines(self, distance, points):
-        return [UnivariateSpline(distance, coords, k=3, s=.2) for coords in points.T]
+    def remove_duplicates(self, x, y, frames):
+        previous_x = None
+        previous_y = None
+        list_x = []
+        list_y = []
+        list_frames = []
+        for i in range(len(x)):
+            if previous_x is None and previous_y is None:
+                previous_x = x[i]
+                previous_y = y[i]
+                list_x.append(x[i])
+                list_y.append(y[i])
+                list_frames.append(frames[i])
+            else:
+                if previous_x != x[i] and previous_y != y[i]:
+                    previous_x = x[i]
+                    previous_y = y[i]
+                    list_x.append(x[i])
+                    list_y.append(y[i])
+                    list_frames.append(frames[i])
+
+        return list_x, list_y, list_frames
