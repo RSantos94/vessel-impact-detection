@@ -69,9 +69,6 @@ if __name__ == '__main__':
             # source1 = 'GH010954_1'  # teste piscina tupperware 1
             # source2 = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
-            history1, detectShadows1, dist2Threshold1, object_min_area1 = get_bs_param(source1)
-            history2, detectShadows2, dist2Threshold2, object_min_area2 = get_bs_param(source2)
-
             # window_size1 = (1280, 720)
             window_size1 = (1980, 1080)
             window_size2 = (1980, 1080)
@@ -96,8 +93,8 @@ if __name__ == '__main__':
             # bs1.create_undistorted_video_file()
             # bs2.create_undistorted_video_file()
 
-            # run(bs1, history1, detectShadows1, dist2Threshold1, object_min_area1, is_test=False)
-            # run(bs2, history2, detectShadows2, dist2Threshold2, object_min_area2, is_test=False)
+            # run(bs1, is_test=False)
+            # run(bs2, is_test=False)
 
             objects_to_track1 = []
             objects_to_track2 = []
