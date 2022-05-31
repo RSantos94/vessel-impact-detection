@@ -119,6 +119,8 @@ class InterpolateCentroids:
         x_est = spline_x.predict(frames)
         y_est = spline_y.predict(frames)
 
+        reports.spline_report(x=x, y=y, frames=frames, splined_x=x_est, splined_y=y_est, source=source, current=current)
+
         return x_est, y_est
 
     def stack_coordinates(self, x, y):
