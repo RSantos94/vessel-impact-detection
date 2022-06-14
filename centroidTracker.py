@@ -7,7 +7,7 @@ from scipy.spatial import distance as dist
 
 
 class CentroidTracker:
-    def __init__(self, maxDisappeared=50):
+    def __init__(self, max_disappeared=50):
         # initialize the next unique object ID along with two ordered
         # dictionaries used to keep track of mapping a given object
         # ID to its centroid and number of consecutive frames it has
@@ -18,7 +18,7 @@ class CentroidTracker:
         # store the number of maximum consecutive frames a given
         # object is allowed to be marked as "disappeared" until we
         # need to deregister the object from tracking
-        self.maxDisappeared = maxDisappeared
+        self.maxDisappeared = max_disappeared
 
     def register(self, centroid):
         # when registering an object we use the next available object

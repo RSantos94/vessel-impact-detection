@@ -2,19 +2,19 @@ import os
 import sys
 
 import cv2
-import imutils
 
 import csv
 
+from cv2 import VideoCapture
+
 from camera_calibration import CameraCalibration
 from centroidTracker import CentroidTracker
-from os.path import exists
 
 
 class BackgroundSubtractionKNN:
     outputFrame = None
 
-    def __init__(self, source_name, resolution, os_name):
+    def __init__(self, source_name: str, resolution: (int, int), os_name: str):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
 
@@ -106,7 +106,7 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
         cap.release()
 
-    def subtractor(self, is_test):
+    def subtractor(self, is_test: bool):
 
         history, detect_shadows, dist_2_threshold, centroid_object_min_area = self.get_bs_param(self.source_name)
         cap = cv2.VideoCapture(self.video_name)
@@ -160,7 +160,7 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
         cap.release()
 
-    def select_objects(self, area, cap, fg_knn, history, is_test):
+    def select_objects(self, area: int, cap: VideoCapture, fg_knn, history: int, is_test: bool):
         if fg_knn is not None:
             fg_knn_rs = self.get_centroid(area, fg_knn, cap, history, is_test)
 
@@ -173,7 +173,7 @@ class BackgroundSubtractionKNN:
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             cv2.imshow("Foreground", fg_knn_rs)
 
-    def get_centroid(self, area, fg_knn_rs, cap, history, is_test):
+    def get_centroid(self, area: int, fg_knn_rs, cap: VideoCapture, history:int, is_test:bool):
         (contours, hierarchy) = cv2.findContours(fg_knn_rs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
