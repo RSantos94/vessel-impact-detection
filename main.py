@@ -1,5 +1,5 @@
 import cv2
-from tracker import *
+from external_libraries.tracker import *
 
 # Create tracker object
 tracker = EuclideanDistTracker()

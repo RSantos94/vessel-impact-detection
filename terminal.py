@@ -1,8 +1,7 @@
 import platform
 
-from Background_subtraction_KNN import BackgroundSubtractionKNN
-from processCentroids import ProcessCentroids
-from interpolate_centroids import InterpolateCentroids
+from tools.Background_subtraction_KNN import BackgroundSubtractionKNN
+from tools.interpolate_centroids import InterpolateCentroids
 
 outputFrame = None
 bs1 = None

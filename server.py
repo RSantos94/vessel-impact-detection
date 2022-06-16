@@ -12,10 +12,10 @@ import tkinter as tk
 from imutils.video import VideoStream
 from os.path import exists
 
-from Background_subtraction_KNN import BackgroundSubtractionKNN
-from processCentroids import ProcessCentroids
-from stereoProcessing import StereoProcessing
-from interpolate_centroids import InterpolateCentroids
+
+from tools.Background_subtraction_KNN import BackgroundSubtractionKNN
+from tools.processCentroids import ProcessCentroids
+from tools.interpolate_centroids import InterpolateCentroids
 
 outputFrame = None
 bs1 = None

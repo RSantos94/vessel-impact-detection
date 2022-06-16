@@ -1,4 +1,4 @@
-from physicsCalculator import PhysicsCalculator
+from tools.physicsCalculator import PhysicsCalculator
 
 
 def test_calculate_acceleration():

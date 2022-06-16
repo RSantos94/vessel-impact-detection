@@ -1,13 +1,12 @@
 from os.path import exists
 import csv
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 import reports
 import os
 
-from spline import get_natural_cubic_spline_model
+from external_libraries.spline import get_natural_cubic_spline_model
 from scipy.interpolate import UnivariateSpline
 
 
