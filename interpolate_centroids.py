@@ -1,45 +1,38 @@
 from os.path import exists
 import csv
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 import reports
 import os
 
 from spline import get_natural_cubic_spline_model
+from scipy.interpolate import UnivariateSpline
 
 
 class InterpolateCentroids:
 
-    def __init__(self, source1, source2, os_name):
+    def __init__(self, source, os_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
         if os_name == "Windows":
             # D:\git\\vessel-impact-detection\\
-            self.centroid_file_1 = path + '\\results\\' + source1 + '-centroids.csv'
-            self.centroid_file_2 = path + '\\results\\' + source2 + '-centroids.csv'
-            self.interpolated_centroid_file_1 = path + '\\results\\' + source1 + '-interpolated_centroids.csv'
-            self.interpolated_centroid_file_2 = path + '\\results\\' + source2 + '-interpolated_centroids.csv'
+            self.centroid_file = path + '\\results\\' + source + '-centroids.csv'
+            self.interpolated_centroid_file_1 = path + '\\results\\' + source + '-interpolated_centroids.csv'
 
         else:
-            self.centroid_file_1 = 'results/' + source1 + '-centroids.csv'
-            self.centroid_file_2 = 'results/' + source2 + '-centroids.csv'
-            self.interpolated_centroid_file_1 = 'results/' + source1 + '-interpolated_centroids.csv'
-            self.interpolated_centroid_file_2 = 'results/' + source2 + '-interpolated_centroids.csv'
+            self.centroid_file = 'results/' + source + '-centroids.csv'
+            self.interpolated_centroid_file_1 = 'results/' + source + '-interpolated_centroids.csv'
 
-        self.objects_to_track1 = []
-        self.objects_to_track2 = []
-        self.source1 = source1
-        self.source2 = source2
+        self.objects_to_track = []
+        self.source = source
 
     def execute(self):
-        if self.has_points_file(self.centroid_file_1):
-            self.interpolate_file(self.centroid_file_1, self.objects_to_track1, self.source1)
+        if self.has_points_file(self.centroid_file):
+            self.interpolate_file(self.centroid_file, self.objects_to_track, self.source)
         else:
-            print('O ficheiro ' + self.centroid_file_1 + ' não existe')
-        if self.has_points_file(self.centroid_file_2):
-            self.interpolate_file(self.centroid_file_2, self.objects_to_track2, self.source2)
-        else:
-            print('O ficheiro ' + self.centroid_file_2 + ' não existe')
+            print('O ficheiro ' + self.centroid_file + ' não existe')
 
     def has_points_file(self, source):
         return exists(source)
@@ -82,42 +75,60 @@ class InterpolateCentroids:
                             curr_max_frame = a['frame']
 
                     elif a['Object ID'] != curr_object:
-                        list_x, list_y, list_frames = self.remove_duplicates(curr_object_x, curr_object_y,
-                                                                             curr_object_frames)
+                        if curr_object in objects_to_track:
+                            # list_x, list_y, list_frames = self.remove_duplicates(curr_object_x, curr_object_y,
+                            #                                                     curr_object_frames)
 
-                        array_x = np.array(list_x)
-                        array_y = np.array(list_y)
-                        array_frames = np.array(list_frames)
-                        x, y = self.spline(array_x, array_y, array_frames, source, curr_object)
+                            array_x = np.array(curr_object_x)
+                            array_y = np.array(curr_object_y)
+                            array_frames = np.array(curr_object_frames)
+                            # array_x = np.array(list_x)
+                            # array_y = np.array(list_y)
+                            # array_frames = np.array(list_frames)
+                            x, y = self.spline(array_x, array_y, array_frames, source, curr_object)
 
-                        points = self.stack_coordinates(x, y)
+                            points = self.stack_coordinates(x, y)
 
-                        distance = self.cumulative_sum(points)
-                        distance = self.calc_distance(distance)
+                            distance = self.cumulative_sum(points)
+                            distance = self.calc_distance(distance)
 
-                        # Build a list of the spline function, one for each dimension:
-                        # splines = self.calc_splines(distance, points)
+                            self.choose_impact_period(x, y)
 
-                        # points_fitted = np.vstack(spl(curr_object_frames) for spl in splines).T
+                            all_frames = np.arange(min(array_frames), max(array_frames), 1)
 
-                        # for cent in points_fitted:
+                            x_1d = self.calc_first_derivative(np.array(all_frames), np.array(x))
+                            x_2d = self.calc_second_derivative(np.array(all_frames), np.array(x))
+                            y_1d = self.calc_first_derivative(np.array(all_frames), np.array(y))
+                            y_2d = self.calc_second_derivative(np.array(all_frames), np.array(y))
 
-                        # frames = np.arrange(curr_min_frame, curr_max_frame, 1)
-                        # res = interpolate.bisplrep(curr_object_x, curr_object_y, frames)
-                        curr_object_x = []
-                        curr_object_y = []
-                        curr_object_frames = []
+                            reports.derivate_report(x_1d(np.array(all_frames)), x_2d(np.array(all_frames)), y_1d(np.array(all_frames)), y_2d(np.array(all_frames)), np.array(all_frames), source, curr_object)
+
+                            # Build a list of the spline function, one for each dimension:
+                            # splines = self.calc_splines(distance, points)
+
+                            # points_fitted = np.vstack(spl(curr_object_frames) for spl in splines).T
+
+                            # for cent in points_fitted:
+
+                            # frames = np.arrange(curr_min_frame, curr_max_frame, 1)
+                            # res = interpolate.bisplrep(curr_object_x, curr_object_y, frames)
+                            curr_object_x = []
+                            curr_object_y = []
+                            curr_object_frames = []
+
                         curr_object = a['Object ID']
 
     def spline(self, x=None, y=None, frames=None, source=None, current=None):
         nodes = max(frames) - min(frames)
 
         spline_x = get_natural_cubic_spline_model(x=frames, y=x, minval=min(frames), maxval=max(frames),
-                                                  n_knots=nodes)
+                                                  n_knots=int(nodes / 2))
         spline_y = get_natural_cubic_spline_model(x=frames, y=y, minval=min(frames), maxval=max(frames),
-                                                  n_knots=nodes)
-        x_est = spline_x.predict(frames)
-        y_est = spline_y.predict(frames)
+                                                  n_knots=int(nodes / 2))
+
+        all_frames = np.arange(min(frames), max(frames), 1)
+        x_est = spline_x.predict(all_frames)
+        y_est = spline_y.predict(all_frames)
 
         reports.spline_report(x=x, y=y, frames=frames, splined_x=x_est, splined_y=y_est, source=source, current=current)
 
@@ -140,6 +151,21 @@ class InterpolateCentroids:
 
     def calc_distance(self, distance):
         return np.insert(distance, 0, 0) / distance[-1]
+
+    def choose_impact_period(self, x, y):
+        window = []
+        
+        return window
+
+    def calc_first_derivative(self, x, y):
+        y_spl = UnivariateSpline(x, y, s=0, k=4)
+        y_spl_1d = y_spl.derivative(n=1)
+        return y_spl_1d
+
+    def calc_second_derivative(self, x, y):
+        y_spl = UnivariateSpline(x, y, s=0, k=4)
+        y_spl_2d = y_spl.derivative(n=2)
+        return y_spl_2d
 
     def remove_duplicates(self, x, y, frames):
         previous_x = None

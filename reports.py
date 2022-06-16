@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 import os
 import platform
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def spline_report(x, y, frames, splined_x, splined_y, source, current):
@@ -14,32 +14,44 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
         folder = path + '\\reports\\' + source + '\\object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
-        spline_report_name = folder + '\\report.html'
+        spline_report_name = folder + '\\spline-report.html'
         spline_report_stock_xy_name = folder + '\\stock-xy-graph.png'
         spline_report_stock_tx_name = folder + '\\stock-tx-graph.png'
         spline_report_stock_ty_name = folder + '\\stock-ty-graph.png'
         spline_report_spline_xy_name = folder + '\\spline-xy-graph.png'
         spline_report_spline_tx_name = folder + '\\spline-tx-graph.png'
         spline_report_spline_ty_name = folder + '\\spline-ty-graph.png'
+        spline_report_combined_xy_name = folder + '\\combined-xy-graph.png'
+        spline_report_combined_tx_name = folder + '\\combined-tx-graph.png'
+        spline_report_combined_ty_name = folder + '\\combined-ty-graph.png'
     else:
         folder = 'reports/' + source + '/object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
-        spline_report_name = folder + '/report.html'
+        spline_report_name = folder + '/spline-report.html'
         spline_report_stock_xy_name = folder + '/stock-xy-graph.png'
         spline_report_stock_tx_name = folder + '/stock-tx-graph.png'
         spline_report_stock_ty_name = folder + '/stock-ty-graph.png'
         spline_report_spline_xy_name = folder + '/spline-xy-graph.png'
         spline_report_spline_tx_name = folder + '/spline-tx-graph.png'
         spline_report_spline_ty_name = folder + '/spline-ty-graph.png'
+        spline_report_combined_xy_name = folder + '/combined-xy-graph.png'
+        spline_report_combined_tx_name = folder + '/combined-tx-graph.png'
+        spline_report_combined_ty_name = folder + '/combined-ty-graph.png'
 
     # Create graphs
     create_graph(x, y, 'x', 'y', spline_report_stock_xy_name)
     create_graph(frames, x, 'frames', 'x', spline_report_stock_tx_name)
     create_graph(frames, y, 'frames', 'y', spline_report_stock_ty_name)
+
+    all_frames = np.arange(min(frames), max(frames), 1)
     create_graph(splined_x, splined_y, 'x', 'y', spline_report_spline_xy_name)
-    create_graph(frames, splined_x, 'frames', 'x', spline_report_spline_tx_name)
-    create_graph(frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
+    create_graph(all_frames, splined_x, 'frames', 'x', spline_report_spline_tx_name)
+    create_graph(all_frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
+
+    create_combined_graph(x, y, splined_x, splined_y, 'x', 'y', 'recorded', 'splinned', spline_report_combined_xy_name)
+    create_combined_graph(frames, x, all_frames, splined_x, 'frames', 'x', 'recorded', 'splinned', spline_report_combined_tx_name)
+    create_combined_graph(frames, y, all_frames, splined_y, 'frames', 'y', 'recorded', 'splinned', spline_report_combined_ty_name)
 
     # Create HTML text
     spline_report_title_title = 'Spline Report ' + source
@@ -51,6 +63,10 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
     spline_report_spline_xy_title = 'Spline XY coordinates graph'
     spline_report_spline_tx_title = 'Spline TX coordinates graph'
     spline_report_spline_ty_title = 'Spline TY coordinates graph'
+    spline_report_combined_title = 'Combined coordinates graph'
+    spline_report_combined_xy_title = 'Combined XY coordinates graph'
+    spline_report_combined_tx_title = 'Combined TX coordinates graph'
+    spline_report_combined_ty_title = 'Combined TY coordinates graph'
     text = 'Lorem Ipsum'
 
     html = f'''
@@ -87,6 +103,135 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
                 <h2>{spline_report_spline_ty_title}</h2>
                 <p>{text}</p>
                 <img src={spline_report_spline_ty_name} width="700">
+                
+                <h1>{spline_report_combined_title}</h1>
+                
+                <h2>{spline_report_combined_xy_title}</h2>
+                <p>{text}</p>
+                <img src={spline_report_combined_xy_name} width="700">
+                
+                <h2>{spline_report_combined_tx_title}</h2>
+                <p>{text}</p>
+                <img src={spline_report_combined_tx_name} width="700">
+                
+                <h2>{spline_report_combined_ty_title}</h2>
+                <p>{text}</p>
+                <img src={spline_report_combined_ty_name} width="700">
+            </body>
+        </html>
+        '''
+    # Write the html string as an HTML file
+    with open(spline_report_name, 'w') as f:
+        f.write(html)
+
+
+def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        folder = path + '\\reports\\' + source + '\\object-' + current
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        spline_report_name = folder + '\\derivative-report.html'
+        first_derivative_graph_xy_name = folder + '\\first-derivative-xy-graph.png'
+        first_derivative_graph_tx_name = folder + '\\first-derivative-tx-graph.png'
+        first_derivative_graph_ty_name = folder + '\\first-derivative-ty-graph.png'
+        second_derivative_graph_xy_name = folder + '\\second-derivative-xy-graph.png'
+        second_derivative_graph_tx_name = folder + '\\second-derivative-tx-graph.png'
+        second_derivative_graph_ty_name = folder + '\\second-derivative-ty-graph.png'
+        combined_derivative_graph_tx_name = folder + '\\combined-derivative-tx-graph.png'
+        combined_derivative_graph_ty_name = folder + '\\combined-derivative-ty-graph.png'
+
+    else:
+        folder = 'reports/' + source + '/object-' + current
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        spline_report_name = folder + '/derivative-report.html'
+        first_derivative_graph_xy_name = folder + '/first-derivative-xy-graph.png'
+        first_derivative_graph_tx_name = folder + '/first-derivative-tx-graph.png'
+        first_derivative_graph_ty_name = folder + '/first-derivative-ty-graph.png'
+        second_derivative_graph_xy_name = folder + '/second-derivative-xy-graph.png'
+        second_derivative_graph_tx_name = folder + '/second-derivative-tx-graph.png'
+        second_derivative_graph_ty_name = folder + '/second-derivative-ty-graph.png'
+        combined_derivative_graph_tx_name = folder + '/combined-derivative-tx-graph.png'
+        combined_derivative_graph_ty_name = folder + '/combined-derivative-ty-graph.png'
+
+    # Create graphs
+    # create_graph(x_1d, y_1d, 'x', 'y', first_derivative_graph_xy_name)
+    create_graph(frames, x_1d, 'frames', 'x', first_derivative_graph_tx_name)
+    create_graph(frames, y_1d, 'frames', 'y', first_derivative_graph_ty_name)
+    # create_graph(x_2d, y_2d, 'x', 'y', second_derivative_graph_xy_name)
+    create_graph(frames, x_2d, 'frames', 'x', second_derivative_graph_tx_name)
+    create_graph(frames, y_2d, 'frames', 'y', second_derivative_graph_ty_name)
+    create_combined_graph(frames, x_1d, frames, x_2d, 'frames', 'x', "1st derivate", "2nd derivate", combined_derivative_graph_tx_name)
+    create_combined_graph(frames, y_1d, frames, y_2d, 'frames', 'y', "1st derivate", "2nd derivate", combined_derivative_graph_ty_name)
+
+    # Create HTML text
+    derivate_report_title_title = 'Derivate Report ' + source
+    first_derivate_report_spline_title = 'Splined first derivate graph'
+    first_derivate_report_spline_xy_title = 'Splined XY first derivate graph'
+    first_derivate_report_spline_tx_title = 'Splined TX first derivate graph'
+    first_derivate_report_spline_ty_title = 'Splined TY first derivate graph'
+    second_derivate_report_spline_title = 'Splined second derivate graph'
+    second_derivate_report_spline_xy_title = 'Splined XY second derivate graph'
+    second_derivate_report_spline_tx_title = 'Splined TX second derivate graph'
+    second_derivate_report_spline_ty_title = 'Splined TY second derivate graph'
+    combined_derivate_report_spline_title = 'Combined derivative graphs'
+    combined_derivate_report_spline_tx_title = 'Splined TX combined derivate graph'
+    combined_derivate_report_spline_ty_title = 'Splined TY combined derivate graph'
+
+    text = 'Lorem Ipsum'
+
+    html = f'''
+        <html>
+            <head>
+                <title>{derivate_report_title_title}</title>
+            </head>
+            <body>
+                <h1>{first_derivate_report_spline_title}</h1>
+
+
+                <!-- <h2>{first_derivate_report_spline_xy_title}</h2>
+                <p>{text}</p>
+                <img src={first_derivative_graph_xy_name} width="700"> -->
+
+                <h2>{first_derivate_report_spline_tx_title}</h2>
+                <p>{text}</p>
+                <img src={first_derivative_graph_tx_name} width="700">
+
+                <h2>{first_derivate_report_spline_ty_title}</h2>
+                <p>{text}</p>
+                <img src={first_derivative_graph_ty_name} width="700">
+                
+                
+                <h1>{second_derivate_report_spline_title}</h1>
+
+
+                <!-- <h2>{second_derivate_report_spline_xy_title}</h2>
+                <p>{text}</p>
+                <img src={second_derivative_graph_xy_name} width="700"> -->
+
+                <h2>{second_derivate_report_spline_tx_title}</h2>
+                <p>{text}</p>
+                <img src={second_derivative_graph_tx_name} width="700">
+
+                <h2>{second_derivate_report_spline_ty_title}</h2>
+                <p>{text}</p>
+                <img src={second_derivative_graph_ty_name} width="700">
+                
+                <h1>{combined_derivate_report_spline_title}</h1>
+
+                
+                <h2>{combined_derivate_report_spline_tx_title}</h2>
+                <p>{text}</p>
+                <img src={combined_derivative_graph_tx_name} width="700">
+
+                <h2>{combined_derivate_report_spline_ty_title}</h2>
+                <p>{text}</p>
+                <img src={combined_derivative_graph_ty_name} width="700">
+                
             </body>
         </html>
         '''
@@ -99,6 +244,16 @@ def create_graph(x, y, x_label, y_label, name):
     plt.plot(x, y)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    plt.savefig(name)
+    plt.show()
+
+
+def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_name, name):
+    plt.plot(f1_x, f1_y, label=f1_name)
+    plt.plot(f2_x, f2_y, label=f2_name)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.legend()
     plt.savefig(name)
     plt.show()
 

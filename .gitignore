@@ -21,3 +21,4 @@ __pycache__/
 /video_files/
 !/video_files/.gitkeep
 Data collection/*.ipynb
+reports/

@@ -1,11 +1,7 @@
-import os
 import platform
-
-import sys
 
 from Background_subtraction_KNN import BackgroundSubtractionKNN
 from processCentroids import ProcessCentroids
-from stereoProcessing import StereoProcessing
 from interpolate_centroids import InterpolateCentroids
 
 outputFrame = None
@@ -16,13 +12,13 @@ cap1 = None
 cap2 = None
 
 
-def create_bs(source_name, compute_window_size, os_name):
+def create_bs(source_name: str, compute_window_size: (int, int), os_name: str):
     return BackgroundSubtractionKNN(source_name, compute_window_size, os_name)
 
 
-def run(bs, is_test):
-    bs.create_centroids_file()
-    bs.subtractor(is_test)
+def run(background_subtractor: BackgroundSubtractionKNN, is_test: bool):
+    background_subtractor.create_centroids_file()
+    background_subtractor.subtractor(is_test)
 
 
 # check to see if this is the main thread of execution
@@ -41,7 +37,7 @@ if __name__ == '__main__':
     # objects_to_track = None
     os_name = platform.system()
 
-    test = input("Test (y/n)?:")
+    test = input("Test (y/n)[default n]?:")
     if test == 'y':
         source = input("Video 1 or 2:")
         if source == '1':
@@ -54,7 +50,7 @@ if __name__ == '__main__':
 
         run(bs1, is_test=True)
     else:
-        stereo = input("Stereo (y/n)?:")
+        stereo = input("Stereo (y/n)[default n]?:")
 
         if stereo == 'y':
             source1 = input("Video file 1 name:")
@@ -112,10 +108,12 @@ if __name__ == '__main__':
                 if x != '':
                     objects_to_track2.append(x)
 
-            ic = InterpolateCentroids(source1, source2, os_name)
-            ic.objects_to_track1 = objects_to_track1
-            ic.objects_to_track2 = objects_to_track2
-            ic.execute()
+            ic1 = InterpolateCentroids(source1, os_name)
+            ic1.objects_to_track1 = objects_to_track1
+            ic1.execute()
+            ic2 = InterpolateCentroids(source2, os_name)
+            ic2.objects_to_track2 = objects_to_track2
+            ic2.execute()
 
             # sp.objects_to_track1 = objects_to_track1
             # sp.objects_to_track2 = objects_to_track2
@@ -125,23 +123,38 @@ if __name__ == '__main__':
         else:
             source = input("Video file name:")
 
-            # source = 'MVI_2438' #lnec camara
-            source = 'GH010731_cut'  # lnec gopro
-            # source = 'GH010890' #Z3
+            # source = 'MVI_2438'  # lnec camara
+            # source = 'GH010731_cut'  # lnec gopro
+            # source = 'GH010946_1' # teste piscina 1
+            # source = 'PXL_20220308_141209924_1' # teste piscina 1
+            source = 'GH010949-cut'  # teste piscina 2
+            # source = 'PXL_20220311_123649450-cut'  # teste piscina 2
+            # source = 'GH010954_1'  # teste piscina tupperware 1
+            # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
-            history, detectShadows, dist2Threshold, object_min_area = get_bs_param(source)
+            # window_size = (1280, 720)
+            window_size = (1980, 1080)
 
-            bs = create_bs(source, window_size)
+            # frame = []
 
-            run(bs, history, detectShadows, dist2Threshold, object_min_area)
+            bs = create_bs(source, window_size, os_name)
 
-            objects_to_track = []  # ['18']
+            # run(bs, is_test=False)
+
+            objects_to_track = []
 
             text = input("Object ids to track (separated by comma):")
 
             arr1 = text.split(',')
             for x in arr1:
-                objects_to_track.append(str(x.split()))
+                if x != '':
+                    objects_to_track.append(x)
 
-            pc = ProcessCentroids(source, objects_to_track)
-            pc.execute()
+            ic = InterpolateCentroids(source, os_name)
+            ic.objects_to_track = objects_to_track
+            ic.execute()
+
+            # sp.objects_to_track1 = objects_to_track1
+            # sp.objects_to_track2 = objects_to_track2
+            # sp.configure_points(source1, source2)
+            # sp.execute()

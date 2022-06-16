@@ -8,7 +8,7 @@ import csv
 from cv2 import VideoCapture
 
 from camera_calibration import CameraCalibration
-from centroidTracker import CentroidTracker
+from external_libraries.centroidTracker import CentroidTracker
 
 
 class BackgroundSubtractionKNN:
