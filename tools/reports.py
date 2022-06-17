@@ -50,8 +50,10 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
     create_graph(all_frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
 
     create_combined_graph(x, y, splined_x, splined_y, 'x', 'y', 'recorded', 'splinned', spline_report_combined_xy_name)
-    create_combined_graph(frames, x, all_frames, splined_x, 'frames', 'x', 'recorded', 'splinned', spline_report_combined_tx_name)
-    create_combined_graph(frames, y, all_frames, splined_y, 'frames', 'y', 'recorded', 'splinned', spline_report_combined_ty_name)
+    create_combined_graph(frames, x, all_frames, splined_x, 'frames', 'x', 'recorded', 'splinned',
+                          spline_report_combined_tx_name)
+    create_combined_graph(frames, y, all_frames, splined_y, 'frames', 'y', 'recorded', 'splinned',
+                          spline_report_combined_ty_name)
 
     # Create HTML text
     spline_report_title_title = 'Spline Report ' + source
@@ -165,8 +167,10 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
     # create_graph(x_2d, y_2d, 'x', 'y', second_derivative_graph_xy_name)
     create_graph(frames, x_2d, 'frames', 'x', second_derivative_graph_tx_name)
     create_graph(frames, y_2d, 'frames', 'y', second_derivative_graph_ty_name)
-    create_combined_graph(frames, x_1d, frames, x_2d, 'frames', 'x', "1st derivate", "2nd derivate", combined_derivative_graph_tx_name)
-    create_combined_graph(frames, y_1d, frames, y_2d, 'frames', 'y', "1st derivate", "2nd derivate", combined_derivative_graph_ty_name)
+    create_combined_graph(frames, x_1d, frames, x_2d, 'frames', 'x', "1st derivate", "2nd derivate",
+                          combined_derivative_graph_tx_name)
+    create_combined_graph(frames, y_1d, frames, y_2d, 'frames', 'y', "1st derivate", "2nd derivate",
+                          combined_derivative_graph_ty_name)
 
     # Create HTML text
     derivate_report_title_title = 'Derivate Report ' + source
@@ -237,6 +241,115 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
         '''
     # Write the html string as an HTML file
     with open(spline_report_name, 'w') as f:
+        f.write(html)
+
+
+def accelerometer_report(x_acceleration_list, y_acceleration_list, z_acceleration_list, gyro_x_list, gyro_y_list,
+                         gyro_z_list, timestamp_list, report_location):
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+    os_name = platform.system()
+
+    if os_name == "Windows":
+
+        if not os.path.exists(report_location):
+            os.makedirs(report_location)
+        acceleration_report_name = report_location + '\\spline-report.html'
+        acceleration_report_accel_tx_name = report_location + '\\acceleration-tx-graph.png'
+        acceleration_report_accel_ty_name = report_location + '\\acceleration-ty-graph.png'
+        acceleration_report_accel_tz_name = report_location + '\\acceleration-tz-graph.png'
+        acceleration_report_gyro_tx_name = report_location + '\\gyro-tx-graph.png'
+        acceleration_report_gyro_ty_name = report_location + '\\gyro-ty-graph.png'
+        acceleration_report_gyro_tz_name = report_location + '\\gyro-tz-graph.png'
+        # acceleration_report_combined_xy_name = report_location + '\\combined-xy-graph.png'
+        # acceleration_report_combined_tx_name = report_location + '\\combined-tx-graph.png'
+        # acceleration_report_combined_ty_name = report_location + '\\combined-ty-graph.png'
+    else:
+
+        if not os.path.exists(report_location):
+            os.makedirs(report_location)
+        acceleration_report_name = report_location + '/accelerometer-report.html'
+        acceleration_report_accel_tx_name = report_location + '/acceleration-tx-graph.png'
+        acceleration_report_accel_ty_name = report_location + '/acceleration-ty-graph.png'
+        acceleration_report_accel_tz_name = report_location + '/acceleration-tz-graph.png'
+        acceleration_report_gyro_tx_name = report_location + '/gyro-tx-graph.png'
+        acceleration_report_gyro_ty_name = report_location + '/gyro-ty-graph.png'
+        acceleration_report_gyro_tz_name = report_location + '/gyro-tz-graph.png'
+        # acceleration_report_combined_xy_name = report_location + '/combined-xy-graph.png'
+        # acceleration_report_combined_tx_name = report_location + '/combined-tx-graph.png'
+        # acceleration_report_combined_ty_name = report_location + '/combined-ty-graph.png'
+
+    # Create graphs
+    create_graph(timestamp_list, x_acceleration_list, 'time (ms)', 'x', acceleration_report_accel_tx_name)
+    create_graph(timestamp_list, y_acceleration_list, 'time (ms)', 'y', acceleration_report_accel_ty_name)
+    create_graph(timestamp_list, z_acceleration_list, 'time (ms)', 'z', acceleration_report_accel_tz_name)
+
+    #all_frames = np.arange(min(frames), max(frames), 1)
+    create_graph(timestamp_list, gyro_x_list, 'time (ms)', 'x', acceleration_report_gyro_tx_name)
+    create_graph(timestamp_list, gyro_y_list, 'time (ms)', 'y', acceleration_report_gyro_ty_name)
+    create_graph(timestamp_list, gyro_z_list, 'time (ms)', 'z', acceleration_report_gyro_tz_name)
+
+
+    # Create HTML text
+    acceleration_report_title_title = 'Accelerometer Report'
+    acceleration_report_accel_title = 'Acceleration graph'
+    acceleration_report_accel_tx_title = 'TX acceleration graph'
+    acceleration_report_accel_ty_title = 'TY acceleration graph'
+    acceleration_report_accel_tz_title = 'TZ acceleration graph'
+    acceleration_report_gyro_title = 'Gyro graph'
+    acceleration_report_gyro_tx_title = 'TX Gyro graph'
+    acceleration_report_gyro_ty_title = 'Gyro TY Gyro graph'
+    acceleration_report_gyro_tz_title = 'Gyro TZ Gyro graph'
+    #spline_report_combined_title = 'Combined coordinates graph'
+    #spline_report_combined_xy_title = 'Combined XY coordinates graph'
+    #spline_report_combined_tx_title = 'Combined TX coordinates graph'
+    #spline_report_combined_ty_title = 'Combined TY coordinates graph'
+    text = 'Lorem Ipsum'
+
+    html = f'''
+        <html>
+            <head>
+                <title>{acceleration_report_title_title}</title>
+            </head>
+            <body>
+                <h1>{acceleration_report_accel_title}</h1>
+                
+
+                <h2>{acceleration_report_accel_tx_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_accel_tx_name} width="700">
+
+                <h2>{acceleration_report_accel_ty_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_accel_ty_name} width="700">
+                
+                <h2>{acceleration_report_accel_tz_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_accel_tz_name} width="700">
+                
+                
+
+                <h1>{acceleration_report_gyro_title}</h1>
+                
+
+                <h2>{acceleration_report_gyro_tx_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_gyro_tx_name} width="700">
+
+                <h2>{acceleration_report_gyro_ty_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_gyro_ty_name} width="700">
+                
+                <h2>{acceleration_report_gyro_tz_title}</h2>
+                <p>{text}</p>
+                <img src={acceleration_report_gyro_tz_name} width="700">
+
+                
+            </body>
+        </html>
+        '''
+    # Write the html string as an HTML file
+    with open(acceleration_report_name, 'w') as f:
         f.write(html)
 
 

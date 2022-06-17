@@ -1,13 +1,12 @@
-from os.path import exists
 import csv
+import os
+from os.path import exists
 
 import numpy as np
-
-import reports
-import os
+from scipy.interpolate import UnivariateSpline
 
 from external_libraries.spline import get_natural_cubic_spline_model
-from scipy.interpolate import UnivariateSpline
+from tools import reports
 
 
 class InterpolateCentroids:
