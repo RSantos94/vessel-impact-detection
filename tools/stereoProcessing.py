@@ -42,10 +42,11 @@ class StereoProcessing:
         self.os_name = os_name
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
 
         if os_name == "Windows":
-            self.centroid_file_1 = path + '\\results\\' + source1 + '-centroids.csv'
-            self.centroid_file_2 = path + '\\results\\' + source2 + '-centroids.csv'
+            self.centroid_file_1 = parent_path + '\\results\\' + source1 + '-centroids.csv'
+            self.centroid_file_2 = parent_path + '\\results\\' + source2 + '-centroids.csv'
         else:
             self.centroid_file_1 = 'results/' + source1 + '-centroids.csv'
             self.centroid_file_2 = 'results/' + source2 + '-centroids.csv'

@@ -7,7 +7,7 @@ import csv
 
 from cv2 import VideoCapture
 
-from camera_calibration import CameraCalibration
+from tools.camera_calibration import CameraCalibration
 from external_libraries.centroidTracker import CentroidTracker
 
 
@@ -17,12 +17,13 @@ class BackgroundSubtractionKNN:
     def __init__(self, source_name: str, resolution: (int, int), os_name: str):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
 
         if os_name == "Windows":
-            self.video_name = path + '\\video_files\\' + source_name + '.MP4'
-            self.video_undistorted_name = path + '\\video_files\\' + source_name + '-undistorted.MP4'
-            self.screenshot_name = path + '\\screenshot_files\\' + source_name
-            self.centroid_file = path + '\\results\\' + source_name + '-centroids.csv'
+            self.video_name = parent_path + '\\video_files\\' + source_name + '.MP4'
+            self.video_undistorted_name = parent_path + '\\video_files\\' + source_name + '-undistorted.MP4'
+            self.screenshot_name = parent_path + '\\screenshot_files\\' + source_name
+            self.centroid_file = parent_path + '\\results\\' + source_name + '-centroids.csv'
         else:
             self.video_name = 'video_files/' + source_name + '.MP4'
             self.video_undistorted_name = 'video_files/' + source_name + '-undistorted.MP4'
@@ -68,41 +69,49 @@ class BackgroundSubtractionKNN:
         img_counter = 0
         frame_counter = 0
 
-        print("Press s to save picture or q to exit()")
+        print("Press space to save picture or q to exit")
         while cap.isOpened():
             # timer = cv2.getTickCount()
             success, img = cap.read()
             frame_counter += 1
 
-            undistorted_img = self.camera_calibration.undistort(img)
+            if img is not None:
+                undistorted_img = self.camera_calibration.undistort(img)
 
-            img_denoise = None
+                img_denoise = None
 
-            # cv2.fastNlMeansDenoising(src=img, dst=img_denoise, h=2)
-            if undistorted_img is not None:
-                imS = cv2.resize(undistorted_img, self.window_size)
+                # cv2.fastNlMeansDenoising(src=img, dst=img_denoise, h=2)
+                if undistorted_img is not None:
+                    imS = cv2.resize(undistorted_img, self.window_size)
 
-                if frame_counter in self.frames:
-                    img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
-                    cv2.imwrite(img_name, imS)
-                    print("{} written!".format(img_name))
-                    img_counter += 1
-                    if frame_counter == max(self.frames):
+                    if frame_counter in self.frames:
+                        img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
+                        cv2.imwrite(img_name, imS)
+                        print("{} written!".format(img_name))
+                        img_counter += 1
+                        if frame_counter == max(self.frames):
+                            break
+
+                    if self.frames == []:
+                        cv2.imshow("Pier cam undistorted", imS)
+
+                    wait_key = cv2.waitKey(1)
+                    if wait_key == 113:
                         break
+                    elif wait_key == 32:
+                        # SPACE pressed
+                        img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
+                        img_original_name = self.screenshot_name + '_original_' + str(img_counter) + '.png'
+                        cv2.imwrite(img_name, imS)
+                        cv2.imwrite(img_original_name, img)
+                        print("{} written!".format(img_name))
+                        print("{} written!".format(img_original_name))
+                        img_counter += 1
+                        self.frames.append(frame_counter)
 
-                if self.frames == []:
-                    cv2.imshow("Pier cam undistorted", imS)
+                else:
+                    print("Calibration failed!")
 
-                wait_key = cv2.waitKey(1)
-                if wait_key == 113:
-                    break
-                elif wait_key == 115:
-                    # SPACE pressed
-                    img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
-                    cv2.imwrite(img_name, imS)
-                    print("{} written!".format(img_name))
-                    img_counter += 1
-                    self.frames.append(frame_counter)
         cv2.destroyAllWindows()
         cap.release()
 
@@ -113,7 +122,8 @@ class BackgroundSubtractionKNN:
 
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
 
-        bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=detect_shadows, dist2Threshold=dist_2_threshold)
+        bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=detect_shadows,
+                                                   dist2Threshold=dist_2_threshold)
 
         # tracker = cv2.TrackerMOSSE_create()
         while cap.isOpened():
@@ -173,7 +183,7 @@ class BackgroundSubtractionKNN:
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             cv2.imshow("Foreground", fg_knn_rs)
 
-    def get_centroid(self, area: int, fg_knn_rs, cap: VideoCapture, history:int, is_test:bool):
+    def get_centroid(self, area: int, fg_knn_rs, cap: VideoCapture, history: int, is_test: bool):
         (contours, hierarchy) = cv2.findContours(fg_knn_rs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
@@ -232,9 +242,10 @@ class BackgroundSubtractionKNN:
     def get_bs_param(self, source_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
 
         if self.os_name == "Windows":
-            bs_config_file_name = path + '\\config\\' + source_name + '-backgroundsubtractor.txt'
+            bs_config_file_name = parent_path + '\\config\\' + source_name + '-backgroundsubtractor.txt'
         else:
             bs_config_file_name = 'config/' + source_name + '-backgroundsubtractor.txt'
 

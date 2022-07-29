@@ -40,12 +40,12 @@ if __name__ == '__main__':
     if test == 'y':
         source = input("Video 1 or 2:")
         if source == '1':
-            sourceName = 'GH010949-cut'
+            source_name = 'GH010949-cut'
         elif source == '2':
-            sourceName = 'PXL_20220311_123649450-cut'
+            source_name = 'PXL_20220311_123649450-cut'
 
         window_size1 = (1980, 1080)
-        bs1 = create_bs(sourceName, window_size1, os_name)
+        bs1 = create_bs(source_name, window_size1, os_name)
 
         run(bs1, is_test=True)
     else:
@@ -126,9 +126,9 @@ if __name__ == '__main__':
             # source = 'GH010731_cut'  # lnec gopro
             # source = 'GH010946_1' # teste piscina 1
             # source = 'PXL_20220308_141209924_1' # teste piscina 1
-            source = 'GH010949-cut'  # teste piscina 2
+            # source = 'GH010949-cut'  # teste piscina 2
             # source = 'PXL_20220311_123649450-cut'  # teste piscina 2
-            # source = 'GH010954_1'  # teste piscina tupperware 1
+            source = 'GH010954_1'  # teste piscina tupperware 1
             # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
             # window_size = (1280, 720)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
             bs = create_bs(source, window_size, os_name)
 
-            # run(bs, is_test=False)
+            run(bs, is_test=False)
 
             objects_to_track = []
 

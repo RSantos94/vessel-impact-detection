@@ -14,10 +14,11 @@ class InterpolateCentroids:
     def __init__(self, source, os_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
         if os_name == "Windows":
             # D:\git\\vessel-impact-detection\\
-            self.centroid_file = path + '\\results\\' + source + '-centroids.csv'
-            self.interpolated_centroid_file_1 = path + '\\results\\' + source + '-interpolated_centroids.csv'
+            self.centroid_file = parent_path + '\\results\\' + source + '-centroids.csv'
+            self.interpolated_centroid_file_1 = parent_path + '\\results\\' + source + '-interpolated_centroids.csv'
 
         else:
             self.centroid_file = 'results/' + source + '-centroids.csv'

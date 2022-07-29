@@ -8,10 +8,11 @@ import numpy as np
 def spline_report(x, y, frames, splined_x, splined_y, source, current):
     full_path = os.path.realpath(__file__)
     path, filename = os.path.split(full_path)
+    parent_path = os.path.dirname(path)
     os_name = platform.system()
 
     if os_name == "Windows":
-        folder = path + '\\reports\\' + source + '\\object-' + current
+        folder = parent_path + '\\reports\\' + source + '\\object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
         spline_report_name = folder + '\\spline-report.html'

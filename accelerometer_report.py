@@ -8,11 +8,12 @@ if __name__ == '__main__':
     os_name = platform.system()
     full_path = os.path.realpath(__file__)
     path, filename = os.path.split(full_path)
+    parent_path = os.path.dirname(path)
     if os_name == "Windows":
         # D:\git\\vessel-impact-detection\\
         acc_number = 'acc002'
-        file_location = path + '\\Data collection\\teste piscina 1\\data-' + acc_number + '.csv'
-        report_location = path + '\\reports\\accelometer-' + acc_number + '\\'
+        file_location = parent_path + '\\Data collection\\teste piscina 1\\data-' + acc_number + '.csv'
+        report_location = parent_path + '\\reports\\accelometer-' + acc_number + '\\'
 
     else:
         acc_number = 'acc002'
