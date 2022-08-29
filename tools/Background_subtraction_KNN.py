@@ -270,3 +270,46 @@ class BackgroundSubtractionKNN:
         except FileNotFoundError:
             print('O ficheiro ' + source_name + '-backgroundsubtractor.txt não existe!')
             sys.exit(0)
+
+    def get_screenshot_tool(self):
+
+        cap = cv2.VideoCapture(self.video_name)
+
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 40)
+        img_counter = 0
+        frame_counter = 0
+
+        print("Press space to save picture or q to exit")
+        while cap.isOpened():
+            success, img = cap.read()
+            frame_counter += 1
+
+            if img is not None:
+                undistorted_img = self.camera_calibration.undistort(img)
+
+                if undistorted_img is not None:
+                    imS = cv2.resize(undistorted_img, self.window_size)
+                    height = img.shape[0]
+                    width = img.shape[1]
+                    undistorted_img_resized = cv2.resize(undistorted_img, (width, height))
+
+                    cv2.imshow("Pier cam undistorted", imS)
+
+                    wait_key = cv2.waitKey(1)
+                    if wait_key == 113:
+                        break
+                    elif wait_key == 32:
+                        # SPACE pressed
+                        img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
+                        img_original_name = self.screenshot_name + '_' + str(img_counter) + '_original.png'
+                        cv2.imwrite(img_name, undistorted_img_resized)
+                        cv2.imwrite(img_original_name, img)
+                        print("{} written!".format(img_name))
+                        print("{} written!".format(img_original_name))
+                        img_counter += 1
+
+                else:
+                    print("Calibration failed!")
+
+        cv2.destroyAllWindows()
+        cap.release()
