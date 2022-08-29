@@ -11,17 +11,19 @@ class CameraCalibration:
     def __init__(self, source_name, os_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
 
         if os_name == "Windows":
-            self.mtx_config_file = path + '\\Camera calibration\\' + source_name[0:2] + '-mtx.csv'
-            self.dist_config_file = path + '\\Camera calibration\\' + source_name[0:2] + '-dist.csv'
-            self.video_name = path + '\\video_files\\' + source_name + '.MP4'
+            self.mtx_config_file = parent_path + '\\Camera calibration\\' + source_name[0:2] + '-mtx.csv'
+            self.dist_config_file = parent_path + '\\Camera calibration\\' + source_name[0:2] + '-dist.csv'
+            self.video_name = parent_path + '\\video_files\\' + source_name + '.MP4'
 
         else:
             self.mtx_config_file = 'Camera calibration/' + source_name[0:2] + '-mtx.csv'
             self.dist_config_file = 'Camera calibration/' + source_name[0:2] + '-dist.csv'
             self.video_name = 'video_files/' + source_name + '.MP4'
 
+        self.os_name = os_name
         self.dist = None
         self.mtx = None
         self.video_name_prefix = source_name[0:2]
@@ -45,10 +47,21 @@ class CameraCalibration:
             objpoints = []  # 3d point in real world space
             imgpoints = []  # 2d points in image plane.
             gray = None
-            if self.video_name_prefix == 'GH':
-                images = glob.glob('Camera calibration/cam_calibration/gopro/*.jpg')
+
+            full_path = os.path.realpath(__file__)
+            path, filename = os.path.split(full_path)
+            parent_path = os.path.dirname(path)
+
+            if self.video_name_prefix == 'GH' or self.video_name_prefix == 'GX':
+                if self.os_name == "Windows":
+                    images = glob.glob(parent_path + '\\Camera calibration\\cam_calibration\\gopro\\*.jpg')
+                else:
+                    images = glob.glob('Camera calibration/cam_calibration/gopro/*.jpg')
             elif self.video_name_prefix == 'PX':
-                images = glob.glob('Camera calibration/cam_calibration/pxl/*.jpg')
+                if self.os_name == "Windows":
+                    images = glob.glob(parent_path + '\\Camera calibration\\cam_calibration\\pxl\\*.jpg')
+                else:
+                    images = glob.glob('Camera calibration/cam_calibration/pxl/*.jpg')
             else:
                 images = None  # = glob.glob('video_files/cam_calibration/gopro/2/*.jpg')
             if images is not None:
