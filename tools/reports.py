@@ -1,3 +1,4 @@
+import csv
 import os
 import platform
 
@@ -49,6 +50,8 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
     create_graph(splined_x, splined_y, 'x', 'y', spline_report_spline_xy_name)
     create_graph(all_frames, splined_x, 'frames', 'x', spline_report_spline_tx_name)
     create_graph(all_frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
+
+    create_csv(all_frames, splined_x, splined_y, 'frames', 'x', 'y', spline_report_spline_xy_name)
 
     create_combined_graph(x, y, splined_x, splined_y, 'x', 'y', 'recorded', 'splinned', spline_report_combined_xy_name)
     create_combined_graph(frames, x, all_frames, splined_x, 'frames', 'x', 'recorded', 'splinned',
@@ -370,6 +373,27 @@ def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_
     plt.legend()
     plt.savefig(name)
     plt.show()
+
+def create_csv(frames, x, y, frames_label, x_label, y_label, name):
+    csv_name = name[:-3] + "csv"
+
+    header_list = []
+    header_list.append(frames_label)
+    header_list.append(x_label)
+    header_list.append(y_label)
+    with open(csv_name, 'w', encoding='UTF8', newline='') as f:
+        dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
+        dw.writeheader()
+
+        new_frames = frames.tolist()
+        new_x = x.tolist()
+        new_y = y.tolist()
+
+        i = 0
+        while i < len(new_x):
+            dw.writerow({frames_label: new_frames[i], x_label: new_x[i], y_label: new_y[i]})
+            i += 1
+
 
 
 class Reports:
