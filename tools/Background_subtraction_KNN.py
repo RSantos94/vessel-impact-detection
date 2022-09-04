@@ -151,14 +151,15 @@ class BackgroundSubtractionKNN:
                 cv2.imshow("Pier cam", imS)
 
                 if undistorted_img_s is not None:
-                    fgKnn = bs_knn.apply(undistorted_img_s)
+                    fgKnn = bs_knn.apply(undistorted_img)
 
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
                     cv2.rectangle(undistorted_img_s, (10, 2), (100, 20), (255, 255, 255), -1)
                     cv2.putText(undistorted_img_s, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                    cv2.imshow("Pier cam undistorted", undistorted_img_s)
+                    undistorted_img_s2 = cv2.resize(undistorted_img, self.window_size)
+                    cv2.imshow("Pier cam undistorted", undistorted_img_s2)
 
                     # fgKnn = bs_knn.apply(undistorted_img)
 
@@ -181,7 +182,8 @@ class BackgroundSubtractionKNN:
             # cv2.putText(fg_knn_rs, str(int(cap.get(cv2.CAP_PROP_FPS))), (75, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
             #             (0, 0, 0))
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
-            cv2.imshow("Foreground", fg_knn_rs)
+            fg_knn_rs2 = cv2.resize(fg_knn_rs, self.window_size)
+            cv2.imshow("Foreground", fg_knn_rs2)
 
     def get_centroid(self, area: int, fg_knn_rs, cap: VideoCapture, history: int, is_test: bool):
         (contours, hierarchy) = cv2.findContours(fg_knn_rs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -215,9 +217,10 @@ class BackgroundSubtractionKNN:
 
                 if history < cap.get(cv2.CAP_PROP_POS_FRAMES):
                     text = "ID {}".format(objectID)
+                    color = (255, 0, 0)
                     cv2.putText(fg_knn_rs, text, (centroid[0] - 10, centroid[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-                    cv2.circle(fg_knn_rs, (centroid[0], centroid[1]), 4, (255, 0, 0), -1)
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(color), 2)
+                    cv2.circle(fg_knn_rs, (centroid[0], centroid[1]), 4, tuple(color), -1)
 
                     if not is_test:
                         self.save_centroids(float(cap.get(cv2.CAP_PROP_FPS)), int(cap.get(cv2.CAP_PROP_POS_FRAMES)),
