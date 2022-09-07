@@ -1,6 +1,7 @@
 import platform
 
 from tools.Background_subtraction_KNN import BackgroundSubtractionKNN
+from tools.convert_units import ConvertUnits
 from tools.interpolate_centroids import InterpolateCentroids
 
 outputFrame = None
@@ -156,6 +157,8 @@ if __name__ == '__main__':
             ic.objects_to_track = objects_to_track
             ic.execute()
 
+            cu = ConvertUnits(source, objects_to_track[0], os_name)
+            cu.execute()
             # sp.objects_to_track1 = objects_to_track1
             # sp.objects_to_track2 = objects_to_track2
             # sp.configure_points(source1, source2)
