@@ -142,6 +142,14 @@ class BackgroundSubtractionKNN:
                 # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
                 undistorted_img = self.camera_calibration.undistort(img)
+
+                height = img.shape[0]
+                width = img.shape[1]
+
+                undistorted_img_resized = cv2.resize(undistorted_img, (width, height))
+
+                undistorted_img = undistorted_img_resized
+
                 undistorted_img_s = cv2.resize(undistorted_img, self.window_size)
 
                 cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
@@ -150,7 +158,7 @@ class BackgroundSubtractionKNN:
 
                 cv2.imshow("Pier cam", imS)
 
-                if undistorted_img_s is not None:
+                if undistorted_img is not None:
                     fgKnn = bs_knn.apply(undistorted_img)
 
                     cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
@@ -173,7 +181,7 @@ class BackgroundSubtractionKNN:
 
     def select_objects(self, area: int, cap: VideoCapture, fg_knn, history: int, is_test: bool):
         if fg_knn is not None:
-            fg_knn_rs = self.get_centroid(area, fg_knn, cap, history, is_test)
+            fg_knn_rs = self.get_centroid(area, cap, fg_knn, history, is_test)
 
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             # cv2.rectangle(fg_knn_rs, (10, 2), (140, 20), (255, 255, 255), -1)
@@ -185,7 +193,7 @@ class BackgroundSubtractionKNN:
             fg_knn_rs2 = cv2.resize(fg_knn_rs, self.window_size)
             cv2.imshow("Foreground", fg_knn_rs2)
 
-    def get_centroid(self, area: int, fg_knn_rs, cap: VideoCapture, history: int, is_test: bool):
+    def get_centroid(self, area: int, cap: VideoCapture, fg_knn_rs, history: int, is_test: bool):
         (contours, hierarchy) = cv2.findContours(fg_knn_rs, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
 
