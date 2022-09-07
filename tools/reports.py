@@ -410,7 +410,9 @@ def create_graph_on_picture(x, y, name):
 
     plt.imshow(image)
 
-    plt.axis([0, 3840, 0, 2160])
+    height, width = image.shape[:2]
+
+    plt.axis([0, width, 0, height])
     plt.plot(new_x, new_y)
     ax = plt.gca()
     ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
