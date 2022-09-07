@@ -4,6 +4,7 @@ import platform
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import image as mpimg
 
 
 def spline_report(x, y, frames, splined_x, splined_y, source, current):
@@ -52,6 +53,7 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
     create_graph(all_frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
 
     create_csv(all_frames, splined_x, splined_y, 'frames', 'x', 'y', spline_report_spline_xy_name)
+    create_graph_on_picture(splined_x, splined_y, spline_report_spline_xy_name)
 
     create_combined_graph(x, y, splined_x, splined_y, 'x', 'y', 'recorded', 'splinned', spline_report_combined_xy_name)
     create_combined_graph(frames, x, all_frames, splined_x, 'frames', 'x', 'recorded', 'splinned',
@@ -288,11 +290,10 @@ def accelerometer_report(x_acceleration_list, y_acceleration_list, z_acceleratio
     create_graph(timestamp_list, y_acceleration_list, 'time (ms)', 'y', acceleration_report_accel_ty_name)
     create_graph(timestamp_list, z_acceleration_list, 'time (ms)', 'z', acceleration_report_accel_tz_name)
 
-    #all_frames = np.arange(min(frames), max(frames), 1)
+    # all_frames = np.arange(min(frames), max(frames), 1)
     create_graph(timestamp_list, gyro_x_list, 'time (ms)', 'x', acceleration_report_gyro_tx_name)
     create_graph(timestamp_list, gyro_y_list, 'time (ms)', 'y', acceleration_report_gyro_ty_name)
     create_graph(timestamp_list, gyro_z_list, 'time (ms)', 'z', acceleration_report_gyro_tz_name)
-
 
     # Create HTML text
     acceleration_report_title_title = 'Accelerometer Report'
@@ -304,10 +305,10 @@ def accelerometer_report(x_acceleration_list, y_acceleration_list, z_acceleratio
     acceleration_report_gyro_tx_title = 'TX Gyro graph'
     acceleration_report_gyro_ty_title = 'Gyro TY Gyro graph'
     acceleration_report_gyro_tz_title = 'Gyro TZ Gyro graph'
-    #spline_report_combined_title = 'Combined coordinates graph'
-    #spline_report_combined_xy_title = 'Combined XY coordinates graph'
-    #spline_report_combined_tx_title = 'Combined TX coordinates graph'
-    #spline_report_combined_ty_title = 'Combined TY coordinates graph'
+    # spline_report_combined_title = 'Combined coordinates graph'
+    # spline_report_combined_xy_title = 'Combined XY coordinates graph'
+    # spline_report_combined_tx_title = 'Combined TX coordinates graph'
+    # spline_report_combined_ty_title = 'Combined TY coordinates graph'
     text = 'Lorem Ipsum'
 
     html = f'''
@@ -374,13 +375,11 @@ def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_
     plt.savefig(name)
     plt.show()
 
+
 def create_csv(frames, x, y, frames_label, x_label, y_label, name):
     csv_name = name[:-3] + "csv"
 
-    header_list = []
-    header_list.append(frames_label)
-    header_list.append(x_label)
-    header_list.append(y_label)
+    header_list = [frames_label, x_label, y_label]
     with open(csv_name, 'w', encoding='UTF8', newline='') as f:
         dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
         dw.writeheader()
@@ -394,6 +393,32 @@ def create_csv(frames, x, y, frames_label, x_label, y_label, name):
             dw.writerow({frames_label: new_frames[i], x_label: new_x[i], y_label: new_y[i]})
             i += 1
 
+
+def create_graph_on_picture(x, y, name):
+    new_x = []
+    new_y = []
+    #for i in x:
+    #    new_x.append(abs(3840-i))
+    new_x = x
+    #for i in x:
+    #    new_y.append(abs(2160-i))
+
+    new_y = y
+
+    picture_name = name[:-4] + "-with-picture.png"
+    image = mpimg.imread("D:\\git\\vessel-impact-detection\\screenshot_files\\GH010731_cut_mixed.png")
+
+    plt.imshow(image)
+
+    plt.axis([0, 3840, 0, 2160])
+    plt.plot(new_x, new_y)
+    ax = plt.gca()
+    ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
+    ax.xaxis.tick_top()
+    #plt.gca().invert_yaxis()
+    #plt.ylim(max(plt.ylim()), min(plt.ylim()))
+    plt.savefig(picture_name)
+    plt.show()
 
 
 class Reports:
