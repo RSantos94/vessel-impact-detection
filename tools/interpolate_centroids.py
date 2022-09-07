@@ -18,11 +18,11 @@ class InterpolateCentroids:
         if os_name == "Windows":
             # D:\git\\vessel-impact-detection\\
             self.centroid_file = parent_path + '\\results\\' + source + '-centroids.csv'
-            self.interpolated_centroid_file_1 = parent_path + '\\results\\' + source + '-interpolated_centroids.csv'
+            self.interpolated_centroid_file = parent_path + '\\results\\' + source + '-interpolated_centroids.csv'
 
         else:
             self.centroid_file = 'results/' + source + '-centroids.csv'
-            self.interpolated_centroid_file_1 = 'results/' + source + '-interpolated_centroids.csv'
+            self.interpolated_centroid_file = 'results/' + source + '-interpolated_centroids.csv'
 
         self.objects_to_track = []
         self.source = source
