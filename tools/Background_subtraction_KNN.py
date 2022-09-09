@@ -25,10 +25,10 @@ class BackgroundSubtractionKNN:
             self.screenshot_name = parent_path + '\\screenshot_files\\' + source_name
             self.centroid_file = parent_path + '\\results\\' + source_name + '-centroids.csv'
         else:
-            self.video_name = 'video_files/' + source_name + '.MP4'
-            self.video_undistorted_name = 'video_files/' + source_name + '-undistorted.MP4'
-            self.screenshot_name = 'screenshot_files/' + source_name
-            self.centroid_file = 'results/' + source_name + '-centroids.csv'
+            self.video_name = parent_path + '/video_files/' + source_name + '.MP4'
+            self.video_undistorted_name = parent_path + '/video_files/' + source_name + '-undistorted.MP4'
+            self.screenshot_name = parent_path + '/screenshot_files/' + source_name
+            self.centroid_file = parent_path + '/results/' + source_name + '-centroids.csv'
 
         self.camera_calibration = CameraCalibration(source_name, os_name)
         self.camera_calibration.calibrate()
@@ -313,7 +313,7 @@ class BackgroundSubtractionKNN:
                         # SPACE pressed
                         img_name = self.screenshot_name + '_' + str(img_counter) + '.png'
                         img_original_name = self.screenshot_name + '_' + str(img_counter) + '_original.png'
-                        cv2.imwrite(img_name, undistorted_img_resized)
+                        cv2.imwrite(img_name, undistorted_img)
                         cv2.imwrite(img_original_name, img)
                         print("{} written!".format(img_name))
                         print("{} written!".format(img_original_name))
