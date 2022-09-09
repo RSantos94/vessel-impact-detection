@@ -406,7 +406,20 @@ def create_graph_on_picture(x, y, name):
     new_y = y
 
     picture_name = name[:-4] + "-with-picture.png"
-    image = mpimg.imread("D:\\git\\vessel-impact-detection\\screenshot_files\\GH010731_cut_mixed.png")
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+    parent_path = os.path.dirname(path)
+
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        # D:\git\\vessel-impact-detection\\
+        image_name = parent_path + '\\screenshot_files\\GH010731_cut_mixed.png'
+
+    else:
+        image_name = "screenshot_files/GH010731_cut_mixed.png"
+
+    image = mpimg.imread(image_name)
 
     plt.imshow(image)
 
