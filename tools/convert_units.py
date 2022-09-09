@@ -202,7 +202,7 @@ class ConvertUnits:
             result = sorted(reader, key=lambda d: (int(d['frames'])))
 
             for a in result:
-                coord_list.append([float(a['x']), abs(float(a['y']) - 2160)])
+                coord_list.append([float(a['x']), float(a['y'])])
                 if temp is None:
                     temp = a
                 else:
@@ -230,8 +230,9 @@ class ConvertUnits:
 
         real_points, picture_points, height, width = self.get_referential_points()
 
-        tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points)
-        print(tran.execute(coord_list))
+        tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points, height=height, width=width)
+        corrected_coord_list = correct_picture_referential(coord_list, height)
+        print(tran.execute(corrected_coord_list))
 
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)
         create_csv(real_x_dist_list, real_y_dist_list, None, self.real_distances_file)

@@ -10,7 +10,13 @@ import math
 from matplotlib import pyplot as plt
 
 
-def plotplac(plac, pontos, name):
+def plotplac(plac, pontos, name, is_realidade: bool):
+    if is_realidade:
+        # plt.axis("scaled")
+        plt.axis([0, 100, 0, 100])
+    else:
+        plt.axis([0, 3840, 0, 2160])
+
     plac.append(plac[0])
     xy = np.array(plac)
     plt.plot(xy[:, 0], xy[:, 1], "-")
@@ -18,7 +24,10 @@ def plotplac(plac, pontos, name):
     plt.plot(xy[:, 0], xy[:, 1], ".")
     titulo = name.replace(".png", "")
     plt.title(titulo)
-    plt.axis("scaled")
+    #plt.axis("scaled")
+    #ax = plt.gca()
+    #ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
+    #ax.xaxis.tick_top()
     plt.savefig(name)
     plt.show()
 
@@ -63,7 +72,7 @@ def calculaN(xy):
 
 class Transforma:
 
-    def __init__(self, pontos_foto: list, pontos_reais: list):
+    def __init__(self, pontos_foto: list, pontos_reais: list, height: int, width: int):
 
         self.pontos_reais = pontos_reais  # referencial real
         self.pontos_foto = pontos_foto  # referencial foto
@@ -74,6 +83,8 @@ class Transforma:
 
         # calculo das funcões de interpolação
         self.Ns = calculaN(pontos_foto)
+        self.height = height
+        self.width = width
 
     def execute(self, coor: list):
         # calcular na realidade
@@ -81,8 +92,8 @@ class Transforma:
         for p in coor:
             xyr.append(interpola(p, self.pontos_reais, self.Ns))
 
-        plotplac(self.pontos_foto, coor, "na_foto.png")
-        plotplac(self.pontos_reais, xyr, "na_realidade.png")
+        plotplac(self.pontos_foto, coor, "na_foto.png", False)
+        plotplac(self.pontos_reais, xyr, "na_realidade.png", True)
 
         return xyr
 
