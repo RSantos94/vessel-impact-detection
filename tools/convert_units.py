@@ -176,7 +176,7 @@ class ConvertUnits:
             result = sorted(reader, key=lambda d: (int(d['frames'])))
 
             for a in result:
-                coord_list.append([float(a['x']), float(a['y'])])
+                coord_list.append([float(a['x']), float(a['y'])-2160])
                 if temp is None:
                     temp = a
                 else:
@@ -199,7 +199,7 @@ class ConvertUnits:
                     temp = a
 
         pontos_reais = [[-6.9, -8.8], [6.9, -8.8], [6.9, 8.8], [-6.9, 8.8]]  # referencial real
-        pontos_foto = [[2076, 1336], [2206, 1251], [2001, 1160], [1868, 1234]]  # referencial foto
+        pontos_foto = [[2076, 1336-2160], [2206, 1251-2160], [2001, 1160-2160], [1868, 1234-2160]]  # referencial foto
 
         tran = Transforma(pontos_foto=pontos_foto, pontos_reais=pontos_reais)
         print(tran.execute(coord_list))
