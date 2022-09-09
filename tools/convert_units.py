@@ -1,6 +1,7 @@
 import csv
 import math
 import os
+from os.path import exists
 
 from external_libraries.transforma import Transforma
 
@@ -143,19 +144,44 @@ def create_csv(x: list, y: list, cartesian: list, csv_name: str):
             i += 1
 
 
+def correct_picture_referential(points: list, height: int):
+    corrected_points = []
+    for point in points:
+        corrected_points.append([point[0], abs(point[1] - height)])
+    return corrected_points
+
+
+def create_points_array(points: str):
+    array = []
+    arr = points.split('], [')
+    for point in arr:
+        coor_temp = point.replace("[", "")
+        coor_temp2 = coor_temp.replace("]", "")
+        coor = coor_temp2.split(",")
+        array.append(float(coor[0]), float(coor[1]))
+
+    return array
+
+
 class ConvertUnits:
     def __init__(self, source, object_name, os_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
         parent_path = os.path.dirname(path)
+        self.os_name = os_name
+
         if os_name == "Windows":
             # D:\git\\vessel-impact-detection\\
             self.interpolated_centroid_file = parent_path + '\\reports\\' + source + '\\object-' + object_name + '\\spline-xy-graph.csv'
             self.distances_file = parent_path + '\\results\\' + source + '-object-' + object_name + '-distances.csv'
             self.real_distances_file = parent_path + '\\results\\' + source + '-object-' + object_name + '-real-distances.csv'
+            self.referential_points_file = parent_path + '\\config\\' + source + '-referential-points.txt'
 
         else:
-            self.interpolated_centroid_file = 'reports/' + source + '/object-' + object_name + '/spline-tx-graph.csv'
+            self.interpolated_centroid_file = 'reports/' + source + '/object-' + object_name + '/spline-xy-graph.csv'
+            self.distances_file = 'results/' + source + '-object-' + object_name + '-distances.csv'
+            self.real_distances_file = 'results/' + source + '-object-' + object_name + '-real-distances.csv'
+            self.referential_points_file = 'config/' + source + '-referential-points.txt'
 
         self.objects_to_track = []
         self.source = source
@@ -176,7 +202,7 @@ class ConvertUnits:
             result = sorted(reader, key=lambda d: (int(d['frames'])))
 
             for a in result:
-                coord_list.append([float(a['x']), float(a['y'])-2160])
+                coord_list.append([float(a['x']), abs(float(a['y']) - 2160)])
                 if temp is None:
                     temp = a
                 else:
@@ -198,11 +224,34 @@ class ConvertUnits:
 
                     temp = a
 
-        pontos_reais = [[-6.9, -8.8], [6.9, -8.8], [6.9, 8.8], [-6.9, 8.8]]  # referencial real
-        pontos_foto = [[2076, 1336-2160], [2206, 1251-2160], [2001, 1160-2160], [1868, 1234-2160]]  # referencial foto
+        real_points = [[-6.9, -8.8], [6.9, -8.8], [6.9, 8.8], [-6.9, 8.8]]  # referencial real
+        picture_points = [[2076, abs(1336 - 2160)], [2206, abs(1251 - 2160)], [2001, abs(1160 - 2160)],
+                          [1868, abs(1234 - 2160)]]  # referencial foto
 
-        tran = Transforma(pontos_foto=pontos_foto, pontos_reais=pontos_reais)
+        real_points, picture_points, height, width = self.get_referential_points()
+
+        tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points)
         print(tran.execute(coord_list))
 
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)
         create_csv(real_x_dist_list, real_y_dist_list, None, self.real_distances_file)
+
+    def get_referential_points(self):
+        if self.has_reference_points_file():
+            f = open(self.referential_points_file, "r")
+            for x in f:
+                arr = x.split(':')
+                if arr[0] == 'Pontos reais':
+                    real_points = create_points_array(arr[1])
+                elif arr[0] == 'Resolucao altura':
+                    height = int(arr[1].strip())
+                elif arr[0] == 'Resolucao largura':
+                    width = int(arr[1].strip())
+                elif arr[0] == 'Pontos foto':
+                    picture_points = create_points_array(arr[1])
+
+        picture_points = correct_picture_referential(picture_points, height)
+        return real_points, picture_points, height, width
+
+    def has_reference_points_file(self):
+        return exists(self.referential_points_file)
