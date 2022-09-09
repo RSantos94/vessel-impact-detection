@@ -2,6 +2,8 @@ import csv
 import math
 import os
 
+from external_libraries.transforma import Transforma
+
 
 def vertical_equation_1_y(x):
     return 0.5288461538461539 * x + -255.56730769230762
@@ -167,11 +169,14 @@ class ConvertUnits:
         real_x_dist_list = []
         real_y_dist_list = []
 
+        coord_list = []
+
         with open(self.interpolated_centroid_file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
             result = sorted(reader, key=lambda d: (int(d['frames'])))
 
             for a in result:
+                coord_list.append([float(a['x']), float(a['y'])])
                 if temp is None:
                     temp = a
                 else:
@@ -192,6 +197,12 @@ class ConvertUnits:
                     real_y_dist_list.append(y_dist * tax_point_y)
 
                     temp = a
+
+        pontos_reais = [[-6.9, -8.8], [6.9, -8.8], [6.9, 8.8], [-6.9, 8.8]]  # referencial real
+        pontos_foto = [[2076, 1336], [2206, 1251], [2001, 1160], [1868, 1234]]  # referencial foto
+
+        tran = Transforma(pontos_foto=pontos_foto, pontos_reais=pontos_reais)
+        print(tran.execute(coord_list))
 
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)
         create_csv(real_x_dist_list, real_y_dist_list, None, self.real_distances_file)
