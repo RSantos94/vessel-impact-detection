@@ -9,6 +9,14 @@ from external_libraries.spline import get_natural_cubic_spline_model
 from tools import reports
 
 
+def is_between_equations(obj_x, obj_y, m1, m2, b1, b2):
+    if m1 is not None and m2 is not None and b1 is not None and b2 is not None:
+        if obj_y >= m2 * obj_x + b2 and obj_y >= m1 * obj_x + b1:
+            return True
+    else:
+        True
+
+
 class InterpolateCentroids:
 
     def __init__(self, source, os_name):
@@ -19,10 +27,12 @@ class InterpolateCentroids:
             # D:\git\\vessel-impact-detection\\
             self.centroid_file = parent_path + '\\results\\' + source + '-centroids.csv'
             self.interpolated_centroid_file = parent_path + '\\results\\' + source + '-interpolated_centroids.csv'
+            self.referential_points_file = parent_path + '\\config\\' + source + '-referential-points.txt'
 
         else:
             self.centroid_file = 'results/' + source + '-centroids.csv'
             self.interpolated_centroid_file = 'results/' + source + '-interpolated_centroids.csv'
+            self.referential_points_file = 'config/' + source + '-referential-points.txt'
 
         self.objects_to_track = []
         self.source = source
@@ -57,9 +67,31 @@ class InterpolateCentroids:
 
                 if curr_object is not None:
                     if a['Object ID'] == curr_object:
-                        curr_object_x.append(float(a['x']))
-                        curr_object_y.append(float(a['y']))
-                        curr_object_frames.append(int(a['frame']))
+                        obj_x = float(a['x'])
+                        obj_y = float(a['y'])
+                        obj_frame = int(a['frame'])
+
+                        if self.has_reference_points_file():
+                            f = open(self.referential_points_file, "r")
+                            for x in f:
+                                arr = x.split(':')
+                                if arr[0] == 'm limite':
+                                    m1 = int(arr[1].strip())
+                                elif arr[0] == 'm cais':
+                                    m2 = int(arr[1].strip())
+                                elif arr[0] == 'b limite':
+                                    b1 = int(arr[1].strip())
+                                elif arr[0] == 'b cais':
+                                    b2 = int(arr[1].strip())
+
+                            if is_between_equations(obj_x, obj_y, m1, m2, b1, b2):
+                                curr_object_x.append(obj_x)
+                                curr_object_y.append(obj_y)
+                                curr_object_frames.append(obj_frame)
+                        else:
+                            curr_object_x.append(obj_x)
+                            curr_object_y.append(obj_y)
+                            curr_object_frames.append(obj_frame)
 
                         if curr_min_frame is None:
                             curr_min_frame = a['frame']

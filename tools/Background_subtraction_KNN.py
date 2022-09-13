@@ -148,7 +148,7 @@ class BackgroundSubtractionKNN:
 
                 undistorted_img_resized = cv2.resize(undistorted_img, (width, height))
 
-                undistorted_img = undistorted_img_resized
+                # undistorted_img = undistorted_img_resized
 
                 undistorted_img_s = cv2.resize(undistorted_img, self.window_size)
 

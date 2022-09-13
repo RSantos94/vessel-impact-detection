@@ -158,7 +158,9 @@ def create_points_array(points: str):
         coor_temp = point.replace("[", "")
         coor_temp2 = coor_temp.replace("]", "")
         coor = coor_temp2.split(",")
-        array.append(float(coor[0]), float(coor[1]))
+        x = coor[0]
+        y = coor[1]
+        array.append([float(x), float(y)])
 
     return array
 
@@ -196,6 +198,8 @@ class ConvertUnits:
         real_y_dist_list = []
 
         coord_list = []
+        frame_list = []
+        frame_rate = None
 
         with open(self.interpolated_centroid_file, encoding='UTF8') as f:
             reader = csv.DictReader(f)
@@ -203,26 +207,31 @@ class ConvertUnits:
 
             for a in result:
                 coord_list.append([float(a['x']), float(a['y'])])
-                if temp is None:
-                    temp = a
-                else:
-                    temp_x = float(temp['x'])
-                    temp_y = float(temp['y'])
-                    a_x = float(a['x'])
-                    a_y = float(a['y'])
+                frame_list.append(int(a['frames']))
 
-                    x_dist, y_dist, points_dist = get_distances(temp_x, temp_y, a_x, a_y)
+                if frame_rate is None:
+                    frame_rate = float(a['fps'])
 
-                    x_dist_list.append(x_dist)
-                    y_dist_list.append(y_dist)
-                    points_dist_list.append(points_dist)
-
-                    tax_point_x, tax_point_y = get_distance_tax(temp_x, temp_y, a_x, a_y)
-
-                    real_x_dist_list.append(x_dist * tax_point_x)
-                    real_y_dist_list.append(y_dist * tax_point_y)
-
-                    temp = a
+                # if temp is None:
+                #     temp = a
+                # else:
+                #     temp_x = float(temp['x'])
+                #     temp_y = float(temp['y'])
+                #     a_x = float(a['x'])
+                #     a_y = float(a['y'])
+                #
+                #     x_dist, y_dist, points_dist = get_distances(temp_x, temp_y, a_x, a_y)
+                #
+                #     x_dist_list.append(x_dist)
+                #     y_dist_list.append(y_dist)
+                #     points_dist_list.append(points_dist)
+                #
+                #     tax_point_x, tax_point_y = get_distance_tax(temp_x, temp_y, a_x, a_y)
+                #
+                #     real_x_dist_list.append(x_dist * tax_point_x)
+                #     real_y_dist_list.append(y_dist * tax_point_y)
+                #
+                #     temp = a
 
         real_points = [[-6.9, -8.8], [6.9, -8.8], [6.9, 8.8], [-6.9, 8.8]]  # referencial real
         picture_points = [[2076, abs(1336 - 2160)], [2206, abs(1251 - 2160)], [2001, abs(1160 - 2160)],
@@ -232,10 +241,16 @@ class ConvertUnits:
 
         tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points, height=height, width=width)
         corrected_coord_list = correct_picture_referential(coord_list, height)
-        print(tran.execute(corrected_coord_list))
+
 
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)
         create_csv(real_x_dist_list, real_y_dist_list, None, self.real_distances_file)
+
+        time_list = []
+        for frame in frame_list:
+            time_list.append(self.get_secoonds_from_frame(frame, frame_rate))
+
+        return tran.execute(corrected_coord_list), frame_rate, time_list
 
     def get_referential_points(self):
         if self.has_reference_points_file():
@@ -256,3 +271,9 @@ class ConvertUnits:
 
     def has_reference_points_file(self):
         return exists(self.referential_points_file)
+
+    def get_secoonds_from_frame(self, frame, fps):
+        if frame == 0:
+            return 0
+        else:
+            return frame/fps
