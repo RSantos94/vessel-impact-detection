@@ -6,7 +6,7 @@
 detectShadows = False  # lnec gp fica bem
 # dist2Threshold = 1000  # lnec gp fica bem
 object_min_area = 1200  # lnec gp fica bem
-history = 10  # lnec gp fica bem
+history = 5  # lnec gp fica bem
 # detectShadows = False  # lnec gp fica bem
 # dist2Threshold = 1000  # lnec gp fica bem
 # object_min_area = 1200  # lnec gp fica bem
@@ -14,6 +14,7 @@ history = 10  # lnec gp fica bem
 # detectShadows = False  # lnec gp fica bem
 dist2Threshold = 800  # lnec gp fica bem
 # object_min_area = 2000  # lnec gp fica bem
+dist2Threshold = 800  # lnec gp fica bem
 
 History: 20
 Detect Shadows: False

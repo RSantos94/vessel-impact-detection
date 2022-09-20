@@ -1,6 +1,7 @@
 import platform
 
 from tools.Background_subtraction_KNN import BackgroundSubtractionKNN
+from tools.calculate_physics import CalculatePhysics
 from tools.convert_units import ConvertUnits
 from tools.interpolate_centroids import InterpolateCentroids
 
@@ -147,7 +148,7 @@ if __name__ == '__main__':
             objects_to_track = []
 
             text = input("Object ids to track (separated by comma):")
-
+            #46
             arr1 = text.split(',')
             for x in arr1:
                 if x != '':
@@ -158,7 +159,13 @@ if __name__ == '__main__':
             ic.execute()
 
             cu = ConvertUnits(source, objects_to_track[0], os_name)
-            cu.execute()
+            coordinates, frame_rate, time_list = cu.execute()
+
+            mass = input("Vessel mass (in Kg):")
+
+            physics = CalculatePhysics(coordinates, frame_rate, time_list, float(mass))
+            acceleration, force = physics.execute()
+
             # sp.objects_to_track1 = objects_to_track1
             # sp.objects_to_track2 = objects_to_track2
             # sp.configure_points(source1, source2)

@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import image as mpimg
 
 
-def spline_report(x, y, frames, splined_x, splined_y, source, current):
+def spline_report(x, y, frames, splined_x, splined_y, source, current, frame_rate):
     full_path = os.path.realpath(__file__)
     path, filename = os.path.split(full_path)
     parent_path = os.path.dirname(path)
@@ -52,7 +52,7 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current):
     create_graph(all_frames, splined_x, 'frames', 'x', spline_report_spline_tx_name)
     create_graph(all_frames, splined_y, 'frames', 'y', spline_report_spline_ty_name)
 
-    create_csv(all_frames, splined_x, splined_y, 'frames', 'x', 'y', spline_report_spline_xy_name)
+    create_csv(all_frames, splined_x, splined_y, 'frames', 'x', 'y', spline_report_spline_xy_name, frame_rate , 'fps')
     create_graph_on_picture(splined_x, splined_y, spline_report_spline_xy_name)
 
     create_combined_graph(x, y, splined_x, splined_y, 'x', 'y', 'recorded', 'splinned', spline_report_combined_xy_name)
@@ -376,10 +376,10 @@ def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_
     plt.show()
 
 
-def create_csv(frames, x, y, frames_label, x_label, y_label, name):
+def create_csv(frames, x, y, frames_label, x_label, y_label, name, frame_rate, fps_label):
     csv_name = name[:-3] + "csv"
 
-    header_list = [frames_label, x_label, y_label]
+    header_list = [frames_label, x_label, y_label, fps_label]
     with open(csv_name, 'w', encoding='UTF8', newline='') as f:
         dw = csv.DictWriter(f, delimiter=',', fieldnames=header_list)
         dw.writeheader()
@@ -390,7 +390,7 @@ def create_csv(frames, x, y, frames_label, x_label, y_label, name):
 
         i = 0
         while i < len(new_x):
-            dw.writerow({frames_label: new_frames[i], x_label: new_x[i], y_label: new_y[i]})
+            dw.writerow({frames_label: new_frames[i], x_label: new_x[i], y_label: new_y[i], fps_label: frame_rate})
             i += 1
 
 
@@ -414,7 +414,7 @@ def create_graph_on_picture(x, y, name):
 
     if os_name == "Windows":
         # D:\git\\vessel-impact-detection\\
-        image_name = parent_path + '\\screenshot_files\\GH010731_cut_mixed.png'
+        image_name = parent_path + '\\screenshot_files\\GH010731_cut_0.png'
 
     else:
         image_name = "screenshot_files/GH010731_cut_mixed.png"

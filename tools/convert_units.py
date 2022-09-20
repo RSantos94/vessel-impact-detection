@@ -242,7 +242,6 @@ class ConvertUnits:
         tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points, height=height, width=width)
         corrected_coord_list = correct_picture_referential(coord_list, height)
 
-
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)
         create_csv(real_x_dist_list, real_y_dist_list, None, self.real_distances_file)
 

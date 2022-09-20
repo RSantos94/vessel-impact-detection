@@ -1,5 +1,7 @@
 import csv
+import math
 import os
+import statistics
 from os.path import exists
 
 import numpy as np
@@ -10,11 +12,64 @@ from tools import reports
 
 
 def is_between_equations(obj_x, obj_y, m1, m2, b1, b2):
-    if m1 is not None and m2 is not None and b1 is not None and b2 is not None:
+    are_fields_empty = m1 is not None and m2 is not None and b1 is not None and b2 is not None
+    if are_fields_empty:
         if obj_y >= m2 * obj_x + b2 and obj_y >= m1 * obj_x + b1:
             return True
+        else:
+            return False
     else:
-        True
+        return True
+
+
+def get_list_distances(list_x, list_y):
+    temp_x = None
+    temp_y = None
+    list_distances = []
+    i = 0
+    while i < len(list_x):
+        if temp_x is None:
+            temp_x = list_x[i]
+            temp_y = list_y[i]
+        else:
+            prev = [temp_x, temp_y]
+            curr = [list_x[i], list_y[i]]
+            distance = math.dist(prev, curr)
+            list_distances.append(distance)
+            temp_x = list_x[i]
+            temp_y = list_y[i]
+        i += 1
+
+    return list_distances
+
+
+def remove_outliers(orig_list_x, orig_list_y, orig_list_frames, distance_stdev):
+    temp_x = None
+    temp_y = None
+    list_x = []
+    list_y = []
+    list_frames = []
+    i = 0
+    while i < len(orig_list_x):
+        if temp_x is None:
+            temp_x = orig_list_x[i]
+            temp_y = orig_list_y[i]
+            list_x.append(orig_list_x[i])
+            list_y.append(orig_list_y[i])
+            list_frames.append(orig_list_frames[i])
+        else:
+            prev = [temp_x, temp_y]
+            curr = [orig_list_x[i], orig_list_y[i]]
+            distance = math.dist(prev, curr)
+            if distance < distance_stdev:
+                list_x.append(orig_list_x[i])
+                list_y.append(orig_list_y[i])
+                list_frames.append(orig_list_frames[i])
+                temp_x = orig_list_x[i]
+                temp_y = orig_list_y[i]
+        i += 1
+
+    return list_x, list_y, list_frames
 
 
 class InterpolateCentroids:
@@ -71,18 +126,30 @@ class InterpolateCentroids:
                         obj_y = float(a['y'])
                         obj_frame = int(a['frame'])
 
-                        if self.has_reference_points_file():
+                        if self.has_points_file(self.referential_points_file):
+                            m1 = None
+                            m2 = None
+                            b1 = None
+                            b2 = None
                             f = open(self.referential_points_file, "r")
                             for x in f:
                                 arr = x.split(':')
                                 if arr[0] == 'm limite':
-                                    m1 = int(arr[1].strip())
+                                    m1_string = arr[1].strip()
+                                    if m1_string != "":
+                                        m1 = int(m1_string)
                                 elif arr[0] == 'm cais':
-                                    m2 = int(arr[1].strip())
+                                    m2_string = arr[1].strip()
+                                    if m2_string != "":
+                                        m2 = int(m2_string)
                                 elif arr[0] == 'b limite':
-                                    b1 = int(arr[1].strip())
+                                    b1_string = arr[1].strip()
+                                    if b1_string != "":
+                                        b1 = int(b1_string)
                                 elif arr[0] == 'b cais':
-                                    b2 = int(arr[1].strip())
+                                    b2_string = arr[1].strip()
+                                    if b2_string != "":
+                                        b2 = int(b2_string)
 
                             if is_between_equations(obj_x, obj_y, m1, m2, b1, b2):
                                 curr_object_x.append(obj_x)
@@ -110,13 +177,28 @@ class InterpolateCentroids:
                             # list_x, list_y, list_frames = self.remove_duplicates(curr_object_x, curr_object_y,
                             #                                                     curr_object_frames)
 
+                            x_stdev = statistics.stdev(curr_object_x)
+                            y_stdev = statistics.stdev(curr_object_y)
+                            distances = get_list_distances(curr_object_x, curr_object_y)
+                            distance_stdev = statistics.stdev(distances)
+
+                            list_x, list_y, list_frames = remove_outliers(curr_object_x, curr_object_y, curr_object_frames, distance_stdev)
+
+                            array_list_x = np.array(list_x)
+                            array_list_y = np.array(list_y)
+                            array_list_frames = np.array(list_frames)
+
+
+                            self.spline(array_list_x, array_list_y, array_list_frames, source, curr_object + "-outliered", fps)
+
                             array_x = np.array(curr_object_x)
                             array_y = np.array(curr_object_y)
                             array_frames = np.array(curr_object_frames)
+
                             # array_x = np.array(list_x)
                             # array_y = np.array(list_y)
                             # array_frames = np.array(list_frames)
-                            x, y = self.spline(array_x, array_y, array_frames, source, curr_object)
+                            x, y, all_frames = self.spline(array_x, array_y, array_frames, source, curr_object, fps)
 
                             points = self.stack_coordinates(x, y)
 
@@ -125,15 +207,16 @@ class InterpolateCentroids:
 
                             self.choose_impact_period(x, y)
 
-                            all_frames = np.arange(min(array_frames), max(array_frames), 1)
-
                             x_1d = self.calc_first_derivative(np.array(all_frames), np.array(x))
                             x_2d = self.calc_second_derivative(np.array(all_frames), np.array(x))
                             y_1d = self.calc_first_derivative(np.array(all_frames), np.array(y))
                             y_2d = self.calc_second_derivative(np.array(all_frames), np.array(y))
 
-                            reports.derivate_report(x_1d(np.array(all_frames)), x_2d(np.array(all_frames)), y_1d(np.array(all_frames)), y_2d(np.array(all_frames)), np.array(all_frames), source, curr_object)
+                            reports.derivate_report(x_1d(np.array(all_frames)), x_2d(np.array(all_frames)),
+                                                    y_1d(np.array(all_frames)), y_2d(np.array(all_frames)),
+                                                    np.array(all_frames), source, curr_object)
 
+                            # reports.spline_report(array_x, array_y, np.array(all_frames), x, y, source, curr_object, fps)
                             # Build a list of the spline function, one for each dimension:
                             # splines = self.calc_splines(distance, points)
 
@@ -149,7 +232,7 @@ class InterpolateCentroids:
 
                         curr_object = a['Object ID']
 
-    def spline(self, x=None, y=None, frames=None, source=None, current=None):
+    def spline(self, x=None, y=None, frames=None, source=None, current=None, frame_rate=None):
         nodes = max(frames) - min(frames)
 
         spline_x = get_natural_cubic_spline_model(x=frames, y=x, minval=min(frames), maxval=max(frames),
@@ -161,9 +244,10 @@ class InterpolateCentroids:
         x_est = spline_x.predict(all_frames)
         y_est = spline_y.predict(all_frames)
 
-        reports.spline_report(x=x, y=y, frames=frames, splined_x=x_est, splined_y=y_est, source=source, current=current)
+        reports.spline_report(x=x, y=y, frames=frames, splined_x=x_est, splined_y=y_est, source=source, current=current,
+                              frame_rate=frame_rate)
 
-        return x_est, y_est
+        return x_est, y_est, all_frames
 
     def stack_coordinates(self, x, y):
         return np.vstack((x, y)).T
@@ -185,7 +269,7 @@ class InterpolateCentroids:
 
     def choose_impact_period(self, x, y):
         window = []
-        
+
         return window
 
     def calc_first_derivative(self, x, y):
