@@ -39,28 +39,6 @@ class BackgroundSubtractionKNN:
         self.window_size = resolution
         self.frames = []
 
-    def create_undistorted_video_file(self):
-        cap = cv2.VideoCapture(self.video_name)
-
-        fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        writer = cv2.VideoWriter(self.video_undistorted_name, fourcc, fps, size)
-
-        while cap.isOpened():
-            success, img = cap.read()
-
-            if not success:
-                break
-
-            undistorted_img = self.camera_calibration.undistort(img)
-            writer.write(undistorted_img)
-
-        cv2.destroyAllWindows()
-        cap.release()
-
     def get_screenshot(self):
 
         cap = cv2.VideoCapture(self.video_name)
