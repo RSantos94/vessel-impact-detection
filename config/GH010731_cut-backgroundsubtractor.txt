@@ -16,7 +16,7 @@ dist2Threshold = 800  # lnec gp fica bem
 # object_min_area = 2000  # lnec gp fica bem
 dist2Threshold = 800  # lnec gp fica bem
 
-History: 20
+History: 10
 Detect Shadows: False
-Distance To Threshold: 1000
+Distance To Threshold: 400
 Object min area: 1200

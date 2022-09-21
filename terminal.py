@@ -53,7 +53,9 @@ if __name__ == '__main__':
 
         run(bs1, is_test=True)
     else:
-        stereo = input("Stereo (y/n)[default n]?:")
+        # stereo = input("Stereo (y/n)[default n]?:")
+
+        stereo = 'n'
 
         if stereo == 'y':
             source1 = input("Video file 1 name:")
@@ -135,9 +137,9 @@ if __name__ == '__main__':
             # source = 'GH010954_1'  # teste piscina tupperware 1
             # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
-            # window_size = (1280, 720)
-            window_size = (1980, 1080)
-            #window_size = (3840, 2160)
+            window_size = (1280, 720)
+            # window_size = (1980, 1080)
+            # window_size = (3840, 2160)
 
             # frame = []
 
