@@ -33,7 +33,7 @@ if __name__ == '__main__':
         video_name = path + '/video_files/' + source + '.mp4'
         converted_path = path + '/video_files/converted/' + source + '/'
         fps_file = converted_path + 'fps.txt'
-        video_file = converted_path + 'video.mkv'
+        video_file = converted_path + 'video.mp4'
 
     if exists(video_name):
         camera_calibration = CameraCalibration(source, os_name)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         with open(fps_file, 'w') as f:
             f.write(str(fps))
 
-        cap.release()
+        #cap.release()
 
         img_counter = 0
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                     width = img.shape[1]
                 undistorted_img = camera_calibration.undistort(img)
 
-                img_name = converted_path + (str(img_counter)).zfill(10) + '.jpg'
+                img_name = converted_path + (str(img_counter)).zfill(10) + '.png'
                 cv2.imwrite(img_name, undistorted_img)
 
                 img_counter += 1
@@ -82,14 +82,14 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
         cap.release()
 
-        images = sorted(glob.glob(converted_path + '*.jpg'), key=os.path.basename)
+        images = sorted(glob.glob(converted_path + '*.png'), key=os.path.basename)
 
         f = open(fps_file, "r")
         fps = float(f.read())
 
-        process = ffmpeg.input('pipe:', format='jpeg_pipe', r=str(fps)).output(video_file,
-                                                                   vcodec='mjpeg', format='matroska',
-                                                                   r=str(fps)).overwrite_output().run_async(
+        process = ffmpeg.input('pipe:', format='png_pipe', r=str(fps)).output(video_file,
+                                                                   vcodec='libx264'
+                                                        ).overwrite_output().run_async(
              pipe_stdin=True)
 
         # process2 = (

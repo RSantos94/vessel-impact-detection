@@ -21,14 +21,16 @@ class BackgroundSubtractionKNN:
         if os_name == "Windows":
             self.video_name = parent_path + '\\video_files\\' + source_name + '.mp4'
             self.video_undistorted_path = parent_path + '\\video_files\\converted\\' + source_name + '\\'
-            self.video_undistorted_name = self.video_undistorted_path + '*.png'
+            self.video_undistorted_format = self.video_undistorted_path + '*.png'
+            self.video_undistorted_video = self.video_undistorted_path + 'filename.mp4'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
             self.screenshot_name = parent_path + '\\screenshot_files\\' + source_name
             self.centroid_file = parent_path + '\\results\\' + source_name + '-centroids.csv'
         else:
             self.video_name = parent_path + '/video_files/' + source_name + '.mp4'
             self.video_undistorted_path = parent_path + '/video_files/converted/' + source_name + '/'
-            self.video_undistorted_name = self.video_undistorted_path + '*.png'
+            self.video_undistorted_format = self.video_undistorted_path + '*.png'
+            self.video_undistorted_video = self.video_undistorted_path + 'filename.mp4'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
             self.screenshot_name = parent_path + '/screenshot_files/' + source_name
             self.centroid_file = parent_path + '/results/' + source_name + '-centroids.csv'
@@ -101,25 +103,27 @@ class BackgroundSubtractionKNN:
 
         history, detect_shadows, dist_2_threshold, centroid_object_min_area = self.get_bs_param(self.source_name)
 
-        images = sorted(glob.glob(self.video_undistorted_name), key=os.path.basename)
+        # images = sorted(glob.glob(self.video_undistorted_name), key=os.path.basename)
 
-        if not os.path.exists(self.video_undistorted_path):
-            return "Video hasn't been converted yet"
+        cap = cv2.VideoCapture(self.video_undistorted_video)
 
-        if not os.path.exists(self.fps_file):
-            return "Video hasn't been converted yet"
+        if not os.path.exists(self.video_undistorted_video):
+            return "Video hasn't been converted yet and placed at video_files"
 
-        f = open(self.fps_file, "r")
-        fps = float(f.read())
+        fps = None
 
         bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=detect_shadows,
                                                    dist2Threshold=dist_2_threshold)
 
-        if images is not None:
-            for fname in images:
-                img = cv2.imread(fname)
+        while cap.isOpened():
+            # timer = cv2.getTickCount()
+            success, img = cap.read()
 
-                frame = int(fname[-5:-4]) + 1
+            if fps is None:
+                fps = float(cap.get(cv2.CAP_PROP_FPS))
+
+            if img is not None:
+
                 # success2, img2 = cap2.read()
 
                 # fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
@@ -132,37 +136,37 @@ class BackgroundSubtractionKNN:
                     imS = cv2.resize(img, self.window_size)  # Resize image
                     # imS2 = cv2.resize(img2, (960, 540))  # Resize image
 
-                    #undistorted_img = self.camera_calibration.undistort(img)
+                    # undistorted_img = self.camera_calibration.undistort(img)
 
                     height = img.shape[0]
                     width = img.shape[1]
 
-                    #undistorted_img_resized = cv2.resize(img, (width, height))
+                    # undistorted_img_resized = cv2.resize(img, (width, height))
 
                     # undistorted_img = undistorted_img_resized
 
-                    #undistorted_img_s = cv2.resize(img, self.window_size)
+                    # undistorted_img_s = cv2.resize(img, self.window_size)
 
                     cv2.rectangle(imS, (10, 2), (100, 20), (255, 255, 255), -1)
-                    cv2.putText(imS, str(fname), (15, 15),
+                    cv2.putText(imS, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
 
                     cv2.imshow("Pier cam", imS)
 
-                    #if undistorted_img is not None:
+                    # if undistorted_img is not None:
                     fgKnn = bs_knn.apply(img)
 
-                        # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                        # cv2.rectangle(undistorted_img_s, (10, 2), (100, 20), (255, 255, 255), -1)
-                        # cv2.putText(undistorted_img_s, str(fname), (15, 15),
-                        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-                        # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
-                        # undistorted_img_s2 = cv2.resize(undistorted_img, self.window_size)
-                        # cv2.imshow("Pier cam undistorted", undistorted_img_s2)
+                    # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
+                    # cv2.rectangle(undistorted_img_s, (10, 2), (100, 20), (255, 255, 255), -1)
+                    # cv2.putText(undistorted_img_s, str(fname), (15, 15),
+                    #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                    # cv2.namedWindow("Pier cam undistorted", cv2.WINDOW_NORMAL)
+                    # undistorted_img_s2 = cv2.resize(undistorted_img, self.window_size)
+                    # cv2.imshow("Pier cam undistorted", undistorted_img_s2)
 
-                        # fgKnn = bs_knn.apply(undistorted_img)
+                    # fgKnn = bs_knn.apply(undistorted_img)
 
-                    self.select_objects(centroid_object_min_area, fps, frame, fgKnn, history, is_test)
+                    self.select_objects(centroid_object_min_area, fps, cap.get(cv2.CAP_PROP_POS_FRAMES), fgKnn, history, is_test)
 
                 if cv2.waitKey(1) & 0xff == ord('q'):
                     break
@@ -170,6 +174,7 @@ class BackgroundSubtractionKNN:
         cv2.destroyAllWindows()
 
         return error
+
     def select_objects(self, area: int, fps: float, frame: int, fg_knn, history: int, is_test: bool):
         if fg_knn is not None:
             fg_knn_rs = self.get_centroid(area, fps, frame, fg_knn, history, is_test)
