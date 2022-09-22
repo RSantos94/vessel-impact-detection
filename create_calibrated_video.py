@@ -25,15 +25,15 @@ if __name__ == '__main__':
     # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
     if os_name == "Windows":
-        video_name = path + '\\video_files\\' + source + '.MP4'
+        video_name = path + '\\video_files\\' + source + '.mp4'
         converted_path = path + '\\video_files\\converted\\' + source + '\\'
         fps_file = converted_path + 'fps.txt'
         video_file = converted_path + 'video.mp4'
     else:
-        video_name = path + '/video_files/' + source + '.MP4'
+        video_name = path + '/video_files/' + source + '.mp4'
         converted_path = path + '/video_files/converted/' + source + '/'
         fps_file = converted_path + 'fps.txt'
-        video_file = converted_path + 'video.mp4'
+        video_file = converted_path + 'video.mkv'
 
     if exists(video_name):
         camera_calibration = CameraCalibration(source, os_name)
@@ -53,10 +53,13 @@ if __name__ == '__main__':
         with open(fps_file, 'w') as f:
             f.write(str(fps))
 
-        process = ffmpeg.input('pipe:', r=str(fps), f='jpeg_pipe').output(video_file,
-                                                                      vcodec='libx264').overwrite_output().run_async(
-            pipe_stdin=True)
+        cap.release()
+
         img_counter = 0
+
+        height = None
+        width = None
+
         while cap.isOpened():
             # timer = cv2.getTickCount()
             success, img = cap.read()
@@ -65,9 +68,13 @@ if __name__ == '__main__':
                 break
 
             if img is not None:
+
+                if height is None:
+                    height = img.shape[0]
+                    width = img.shape[1]
                 undistorted_img = camera_calibration.undistort(img)
 
-                img_name = converted_path + (str(img_counter)).zfill(10) + '.png'
+                img_name = converted_path + (str(img_counter)).zfill(10) + '.jpg'
                 cv2.imwrite(img_name, undistorted_img)
 
                 img_counter += 1
@@ -75,7 +82,23 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
         cap.release()
 
-        images = sorted(glob.glob(converted_path + '*.png'), key=os.path.basename)
+        images = sorted(glob.glob(converted_path + '*.jpg'), key=os.path.basename)
+
+        f = open(fps_file, "r")
+        fps = float(f.read())
+
+        process = ffmpeg.input('pipe:', format='jpeg_pipe', r=str(fps)).output(video_file,
+                                                                   vcodec='mjpeg', format='matroska',
+                                                                   r=str(fps)).overwrite_output().run_async(
+             pipe_stdin=True)
+
+        # process2 = (
+        #     ffmpeg
+        #     .input('pipe:', format='rawvideo', pix_fmt='rgb24', s='{}x{}'.format(width, height))
+        #     .output(video_file, pix_fmt='yuv420p')
+        #     .overwrite_output()
+        #     .run_async(pipe_stdin=True)
+        # )
 
         for image in images:
             with open(image, 'rb') as f:
@@ -84,6 +107,8 @@ if __name__ == '__main__':
 
                 # Write JPEG data to stdin pipe of FFmpeg process
                 process.stdin.write(jpeg_data)
+
+        process.stdin.close()
 
     else:
         print("Video " + video_name + "doesn't exists!")

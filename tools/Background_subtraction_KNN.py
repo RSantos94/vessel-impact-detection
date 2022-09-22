@@ -19,14 +19,14 @@ class BackgroundSubtractionKNN:
         parent_path = os.path.dirname(path)
 
         if os_name == "Windows":
-            self.video_name = parent_path + '\\video_files\\' + source_name + '.MP4'
+            self.video_name = parent_path + '\\video_files\\' + source_name + '.mp4'
             self.video_undistorted_path = parent_path + '\\video_files\\converted\\' + source_name + '\\'
             self.video_undistorted_name = self.video_undistorted_path + '*.png'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
             self.screenshot_name = parent_path + '\\screenshot_files\\' + source_name
             self.centroid_file = parent_path + '\\results\\' + source_name + '-centroids.csv'
         else:
-            self.video_name = parent_path + '/video_files/' + source_name + '.MP4'
+            self.video_name = parent_path + '/video_files/' + source_name + '.mp4'
             self.video_undistorted_path = parent_path + '/video_files/converted/' + source_name + '/'
             self.video_undistorted_name = self.video_undistorted_path + '*.png'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
