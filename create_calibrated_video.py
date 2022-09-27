@@ -16,7 +16,20 @@ if __name__ == '__main__':
     source = input("Video file name:")
 
     # source = 'MVI_2438'  # lnec camara
-    source = 'GH010731_cut'  # lnec gopro
+    #source = 'GH010731_cut'  # lnec gopro
+    #source = 'GH010731_impact_1'  # lnec gopro
+    #source = 'GH010731_impact_2'  # lnec gopro
+    #source = 'GH010731_impact_3'  # lnec gopro
+    #source = 'GH010731_impact_4'  # lnec gopro
+    #source = 'GH010731_impact_5'  # lnec gopro
+    #source = 'GH010731_impact_6'  # lnec gopro
+    #source = 'GH010731_impact_7'  # lnec gopro
+    #source = 'GH010731_impact_8'  # lnec gopro
+    #source = 'GH010731_impact_9'  # lnec gopro
+    #source = 'GH010731_impact_10'  # lnec gopro
+    source = 'GH010731_impact_11'  # lnec gopro
+
+
     # source = 'GH010946_1' # teste piscina 1
     # source = 'PXL_20220308_141209924_1' # teste piscina 1
     # source = 'GH010949-cut'  # teste piscina 2
@@ -53,7 +66,7 @@ if __name__ == '__main__':
         with open(fps_file, 'w') as f:
             f.write(str(fps))
 
-        #cap.release()
+        # cap.release()
 
         img_counter = 0
 
@@ -87,10 +100,7 @@ if __name__ == '__main__':
         f = open(fps_file, "r")
         fps = float(f.read())
 
-        process = ffmpeg.input('pipe:', format='png_pipe', r=str(fps)).output(video_file,
-                                                                   vcodec='libx264'
-                                                        ).overwrite_output().run_async(
-             pipe_stdin=True)
+        #process = ffmpeg.input('pipe:', format='png_pipe', r=str(fps)).output(video_file, vcodec='libx264').overwrite_output().run_async(pipe_stdin=True)
 
         # process2 = (
         #     ffmpeg
@@ -100,15 +110,15 @@ if __name__ == '__main__':
         #     .run_async(pipe_stdin=True)
         # )
 
-        for image in images:
-            with open(image, 'rb') as f:
-                # Read the JPEG file content to jpeg_data (bytes array)
-                jpeg_data = f.read()
-
-                # Write JPEG data to stdin pipe of FFmpeg process
-                process.stdin.write(jpeg_data)
-
-        process.stdin.close()
+        # for image in images:
+        #     with open(image, 'rb') as f:
+        #         # Read the JPEG file content to jpeg_data (bytes array)
+        #         jpeg_data = f.read()
+        #
+        #         # Write JPEG data to stdin pipe of FFmpeg process
+        #         process.stdin.write(jpeg_data)
+        #
+        # process.stdin.close()
 
     else:
         print("Video " + video_name + "doesn't exists!")
