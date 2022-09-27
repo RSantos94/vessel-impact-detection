@@ -129,7 +129,19 @@ if __name__ == '__main__':
             source = input("Video file name:")
 
             # source = 'MVI_2438'  # lnec camara
-            source = 'GH010731_cut'  # lnec gopro
+            # source = 'GH010731_cut'  # lnec gopro
+            source = 'GH010731_impact_1'  # lnec gopro # ponto 4
+            # source = 'GH010731_impact_2'  # lnec gopro # ponto 3
+            # source = 'GH010731_impact_3'  # lnec gopro # ponto 2
+            # source = 'GH010731_impact_4'  # lnec gopro # ponto 4
+            # source = 'GH010731_impact_5'  # lnec gopro # ponto 6
+            # source = 'GH010731_impact_6'  # lnec gopro # ponto 5
+            # source = 'GH010731_impact_7'  # lnec gopro # ponto 5
+            # source = 'GH010731_impact_8'  # lnec gopro # ponto 4
+            # source = 'GH010731_impact_9'  # lnec gopro # ponto 6 (fraco)
+            # source = 'GH010731_impact_10'  # lnec gopro # ponto 4
+            # source = 'GH010731_impact_11'  # lnec gopro # ponto 8
+
             # source = 'GH010946_1' # teste piscina 1
             # source = 'PXL_20220308_141209924_1' # teste piscina 1
             # source = 'GH010949-cut'  # teste piscina 2

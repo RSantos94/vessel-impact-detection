@@ -15,6 +15,8 @@ def calc_second_derivative(x, y):
     y_spl_2d = y_spl.derivative(n=2)
     return y_spl_2d
 
+def get_impact_moment(x_1d, y_1d, time_list):
+    pass
 
 class CalculatePhysics:
 
@@ -36,6 +38,18 @@ class CalculatePhysics:
         y_1d = calc_first_derivative(np.array(self.time_list), np.array(y))
         y_2d = calc_second_derivative(np.array(self.time_list), np.array(y))
 
+        times = get_impact_moment(x_1d, y_1d, self.time_list)
+
+        i: int = 0
+
+        x_acc_list = []
+        y_acc_list = []
+        for time in self.time_list:
+            if time in times:
+                x_acc_list.append(x_2d[i])
+                y_acc_list.append(y_2d[i])
+            i += 1
+
         reports.derivate_report(x_1d(np.array(self.time_list)), x_2d(np.array(self.time_list)),
                                 y_1d(np.array(self.time_list)), y_2d(np.array(self.time_list)),
-                                np.array(self.time_list), "boat", "test")
+                                np.array(self.time_list), "boat", "real")

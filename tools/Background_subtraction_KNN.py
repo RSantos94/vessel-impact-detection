@@ -108,7 +108,7 @@ class BackgroundSubtractionKNN:
         cap = cv2.VideoCapture(self.video_undistorted_video)
 
         if not os.path.exists(self.video_undistorted_video):
-            return "Video hasn't been converted yet and placed at video_files"
+            return "Video hasn't been converted and placed at video_files yet"
 
         fps = None
 
