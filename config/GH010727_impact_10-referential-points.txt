@@ -1,0 +1,8 @@
+Pontos reais:[[-0.069, -0.088], [0.069, -0.088], [0.069, 0.088], [-0.069, 0.088]] 
+Resolucao altura:  934
+Resolucao largura: 1469
+Pontos foto: [[778, 572], [830, 538], [755, 493], [703, 524]]
+m limite: -0.55
+m cais: 0.83
+b limite: -837.5
+b cais: 328.36

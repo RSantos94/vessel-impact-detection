@@ -19,7 +19,7 @@ def create_bs(source_name: str, compute_window_size: (int, int), os_name: str):
 
 def run(background_subtractor: BackgroundSubtractionKNN, is_test: bool):
     background_subtractor.create_centroids_file()
-    background_subtractor.subtractor(is_test)
+    return background_subtractor.subtractor(is_test)
 
 
 # check to see if this is the main thread of execution
@@ -128,9 +128,22 @@ if __name__ == '__main__':
         else:
             source = input("Video file name:")
 
+            # teste 0006
+            # source = 'GH010727_impact_1'  # lnec gopro # ponto 2
+            # source = 'GH010727_impact_2'  # lnec gopro # ponto 4
+            # source = 'GH010727_impact_3'  # lnec gopro # ponto 6/7(mais o 7) (7 falha calculos)
+            # source = 'GH010727_impact_4'  # lnec gopro # ponto 5
+            # source = 'GH010727_impact_5'  # lnec gopro # ponto 7
+            # source = 'GH010727_impact_6'  # lnec gopro # ponto 5
+            # source = 'GH010727_impact_7'  # lnec gopro # ponto 6
+            # source = 'GH010727_impact_8'  # lnec gopro # ponto 5
+            # source = 'GH010727_impact_9'  # lnec gopro # ponto 5
+            source = 'GH010727_impact_10'  # lnec gopro # ponto 7
+
+            #teste 0010
             # source = 'MVI_2438'  # lnec camara
             # source = 'GH010731_cut'  # lnec gopro
-            source = 'GH010731_impact_1'  # lnec gopro # ponto 4
+            # source = 'GH010731_impact_1'  # lnec gopro # ponto 4
             # source = 'GH010731_impact_2'  # lnec gopro # ponto 3
             # source = 'GH010731_impact_3'  # lnec gopro # ponto 2
             # source = 'GH010731_impact_4'  # lnec gopro # ponto 4
@@ -157,11 +170,16 @@ if __name__ == '__main__':
 
             bs = create_bs(source, window_size, os_name)
 
-            run(bs, is_test=False)
+            # error = run(bs, is_test=False)
+            error = None
+
+            if error is not None:
+                print(error)
+                quit()
 
             objects_to_track = []
 
-            text = input("Object ids to track (separated by comma):")
+            text = input("Object id to track:")
             #46
             arr1 = text.split(',')
             for x in arr1:
@@ -177,7 +195,7 @@ if __name__ == '__main__':
 
             mass = input("Vessel mass (in Kg):")
 
-            physics = CalculatePhysics(coordinates, frame_rate, time_list, float(mass))
+            physics = CalculatePhysics(coordinates, frame_rate, time_list, float(mass), source, objects_to_track[0])
             acceleration, force = physics.execute()
 
             # sp.objects_to_track1 = objects_to_track1
