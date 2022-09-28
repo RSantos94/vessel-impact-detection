@@ -430,6 +430,7 @@ def create_graph(x, y, x_label, y_label, name):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(name)
+    plt.clf()
     #plt.show()
 
 
@@ -440,6 +441,7 @@ def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_
     plt.ylabel(y_label)
     plt.legend()
     plt.savefig(name)
+    plt.clf()
     #plt.show()
 
 
@@ -500,6 +502,7 @@ def create_graph_on_picture(x, y, name):
     #plt.gca().invert_yaxis()
     #plt.ylim(max(plt.ylim()), min(plt.ylim()))
     plt.savefig(picture_name)
+    plt.clf()
     #plt.show()
 
 

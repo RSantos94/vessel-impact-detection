@@ -34,6 +34,7 @@ def plotplac(plac, pontos, name, is_realidade: bool):
     #ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
     #ax.xaxis.tick_top()
     plt.savefig(name)
+    plt.clf()
     #plt.show()
 
 
