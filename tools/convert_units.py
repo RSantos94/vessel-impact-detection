@@ -187,6 +187,7 @@ class ConvertUnits:
 
         self.objects_to_track = []
         self.source = source
+        self.object_name = object_name
 
     def execute(self):
         temp = None
@@ -239,7 +240,7 @@ class ConvertUnits:
 
         real_points, picture_points, height, width = self.get_referential_points()
 
-        tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points, height=height, width=width)
+        tran = Transforma(pontos_foto=picture_points, pontos_reais=real_points, height=height, width=width, source = self.source, object_name=self.object_name, os_name=self.os_name)
         corrected_coord_list = correct_picture_referential(coord_list, height)
 
         create_csv(x_dist_list, y_dist_list, points_dist_list, self.distances_file)

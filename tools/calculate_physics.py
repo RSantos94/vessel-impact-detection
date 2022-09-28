@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from scipy.interpolate import UnivariateSpline
 
@@ -15,16 +17,20 @@ def calc_second_derivative(x, y):
     y_spl_2d = y_spl.derivative(n=2)
     return y_spl_2d
 
+
 def get_impact_moment(x_1d, y_1d, time_list):
     pass
 
+
 class CalculatePhysics:
 
-    def __init__(self, coordinates :list, frame_rate: list, time_list: list, mass: float):
+    def __init__(self, coordinates: list, frame_rate: list, time_list: list, mass: float, source: str, object: str):
         self.coordinates = coordinates
         self.frame_rate = frame_rate
         self.time_list = time_list
         self.mass = mass
+        self.source = source
+        self.object = object
 
     def execute(self):
         x = []
@@ -38,18 +44,41 @@ class CalculatePhysics:
         y_1d = calc_first_derivative(np.array(self.time_list), np.array(y))
         y_2d = calc_second_derivative(np.array(self.time_list), np.array(y))
 
-        times = get_impact_moment(x_1d, y_1d, self.time_list)
+        # times = get_impact_moment(x_1d, y_1d, self.time_list)
 
-        i: int = 0
+        # i: int = 0
 
-        x_acc_list = []
-        y_acc_list = []
-        for time in self.time_list:
-            if time in times:
-                x_acc_list.append(x_2d[i])
-                y_acc_list.append(y_2d[i])
-            i += 1
+        # x_acc_list = []
+        # y_acc_list = []
+        # for time in self.time_list:
+        #     if time in times:
+        #         x_acc_list.append(x_2d(np.array(self.time_list))[i])
+        #         y_acc_list.append(y_2d(np.array(self.time_list))[i])
+        #     i += 1
 
-        reports.derivate_report(x_1d(np.array(self.time_list)), x_2d(np.array(self.time_list)),
-                                y_1d(np.array(self.time_list)), y_2d(np.array(self.time_list)),
-                                np.array(self.time_list), "boat", "real")
+        reports.real_units_derivate_report(x_1d(np.array(self.time_list)), x_2d(np.array(self.time_list)),
+                                           y_1d(np.array(self.time_list)), y_2d(np.array(self.time_list)),
+                                           np.array(self.time_list), self.source, self.object)
+        i = 0
+        max_x = max(x_2d(np.array(self.time_list)))
+        max_y_list = []
+        max_x_pos_list = []
+        for i in range(0, x_2d(np.array(self.time_list)).size):
+            if x_2d(np.array(self.time_list))[i] == max_x:
+                max_x_pos_list.append(i)
+
+        for i in range(0, y_2d(np.array(self.time_list)).size):
+            if i in max_x_pos_list:
+                max_y_list.append(y_2d(np.array(self.time_list))[i])
+
+        max_y = max(max_y_list)
+
+        max_acc = math.sqrt(max_x ** 2 + max_y ** 2)
+
+        print("Max acceleration: " + str(max_acc) + " m^2/s^2")
+
+        max_force = max_acc * self.mass
+
+        print("Max acceleration: " + str(max_force) + " Kg*m^2/s^2 (N m)")
+
+        return max_acc, max_force

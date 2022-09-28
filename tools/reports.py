@@ -2,6 +2,8 @@ import csv
 import os
 import platform
 
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import image as mpimg
@@ -28,7 +30,7 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current, frame_rat
         spline_report_combined_tx_name = folder + '\\combined-tx-graph.png'
         spline_report_combined_ty_name = folder + '\\combined-ty-graph.png'
     else:
-        folder = 'reports/' + source + '/object-' + current
+        folder = parent_path + '/reports/' + source + '/object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
         spline_report_name = folder + '/spline-report.html'
@@ -136,10 +138,11 @@ def spline_report(x, y, frames, splined_x, splined_y, source, current, frame_rat
 def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
     full_path = os.path.realpath(__file__)
     path, filename = os.path.split(full_path)
+    parent_path = os.path.dirname(path)
     os_name = platform.system()
 
     if os_name == "Windows":
-        folder = path + '\\reports\\' + source + '\\object-' + current
+        folder = parent_path + '\\reports\\' + source + '\\object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
         spline_report_name = folder + '\\derivative-report.html'
@@ -153,7 +156,7 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
         combined_derivative_graph_ty_name = folder + '\\combined-derivative-ty-graph.png'
 
     else:
-        folder = 'reports/' + source + '/object-' + current
+        folder = parent_path + '/reports/' + source + '/object-' + current
         if not os.path.exists(folder):
             os.makedirs(folder)
         spline_report_name = folder + '/derivative-report.html'
@@ -179,6 +182,72 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
                           combined_derivative_graph_ty_name)
 
     # Create HTML text
+    create_derivative_report_html(combined_derivative_graph_tx_name, combined_derivative_graph_ty_name,
+                                  first_derivative_graph_tx_name, first_derivative_graph_ty_name,
+                                  first_derivative_graph_xy_name, second_derivative_graph_tx_name,
+                                  second_derivative_graph_ty_name, second_derivative_graph_xy_name, source,
+                                  spline_report_name)
+
+
+def real_units_derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+    parent_path = os.path.dirname(path)
+    os_name = platform.system()
+
+    if os_name == "Windows":
+        folder = parent_path + '\\reports\\' + source + '\\object-' + current
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        spline_report_name = folder + '\\real-units-derivative-report.html'
+        first_derivative_graph_xy_name = folder + '\\real-units-first-derivative-xy-graph.png'
+        first_derivative_graph_tx_name = folder + '\\real-units-first-derivative-tx-graph.png'
+        first_derivative_graph_ty_name = folder + '\\real-units-first-derivative-ty-graph.png'
+        second_derivative_graph_xy_name = folder + '\\real-units-second-derivative-xy-graph.png'
+        second_derivative_graph_tx_name = folder + '\\real-units-second-derivative-tx-graph.png'
+        second_derivative_graph_ty_name = folder + '\\real-units-second-derivative-ty-graph.png'
+        combined_derivative_graph_tx_name = folder + '\\real-units-combined-derivative-tx-graph.png'
+        combined_derivative_graph_ty_name = folder + '\\real-units-combined-derivative-ty-graph.png'
+
+    else:
+        folder = parent_path + '/reports/' + source + '/object-' + current
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        spline_report_name = folder + '/real-units-derivative-report.html'
+        first_derivative_graph_xy_name = folder + '/real-units-first-derivative-xy-graph.png'
+        first_derivative_graph_tx_name = folder + '/real-units-first-derivative-tx-graph.png'
+        first_derivative_graph_ty_name = folder + '/real-units-first-derivative-ty-graph.png'
+        second_derivative_graph_xy_name = folder + '/real-units-second-derivative-xy-graph.png'
+        second_derivative_graph_tx_name = folder + '/real-units-second-derivative-tx-graph.png'
+        second_derivative_graph_ty_name = folder + '/real-units-second-derivative-ty-graph.png'
+        combined_derivative_graph_tx_name = folder + '/real-units-combined-derivative-tx-graph.png'
+        combined_derivative_graph_ty_name = folder + '/real-units-combined-derivative-ty-graph.png'
+
+    # Create graphs
+    # create_graph(x_1d, y_1d, 'x', 'y', first_derivative_graph_xy_name)
+    create_graph(frames, x_1d, 'time (s)', 'x speed (m/s)', first_derivative_graph_tx_name)
+    create_graph(frames, y_1d, 'time (s)', 'y speed (m/s)', first_derivative_graph_ty_name)
+    # create_graph(x_2d, y_2d, 'x', 'y', second_derivative_graph_xy_name)
+    create_graph(frames, x_2d, 'time (s)', 'x accel (m^2/m^2)', second_derivative_graph_tx_name)
+    create_graph(frames, y_2d, 'time (s)', 'y accel (m^2/m^2)', second_derivative_graph_ty_name)
+    create_combined_graph(frames, x_1d, frames, x_2d, 'time (s)', 'x', "1st derivate [speed (m/s)]", "2nd derivate [accel (m^2/m^2)]",
+                          combined_derivative_graph_tx_name)
+    create_combined_graph(frames, y_1d, frames, y_2d, 'time (s)', 'y', "1st derivate [speed (m/s)]", "2nd derivate  [accel (m^2/m^2)]",
+                          combined_derivative_graph_ty_name)
+
+    # Create HTML text
+    create_derivative_report_html(combined_derivative_graph_tx_name, combined_derivative_graph_ty_name,
+                                  first_derivative_graph_tx_name, first_derivative_graph_ty_name,
+                                  first_derivative_graph_xy_name, second_derivative_graph_tx_name,
+                                  second_derivative_graph_ty_name, second_derivative_graph_xy_name, source,
+                                  spline_report_name)
+
+
+def create_derivative_report_html(combined_derivative_graph_tx_name, combined_derivative_graph_ty_name,
+                                  first_derivative_graph_tx_name, first_derivative_graph_ty_name,
+                                  first_derivative_graph_xy_name, second_derivative_graph_tx_name,
+                                  second_derivative_graph_ty_name, second_derivative_graph_xy_name, source,
+                                  spline_report_name):
     derivate_report_title_title = 'Derivate Report ' + source
     first_derivate_report_spline_title = 'Splined first derivate graph'
     first_derivate_report_spline_xy_title = 'Splined XY first derivate graph'
@@ -191,9 +260,7 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
     combined_derivate_report_spline_title = 'Combined derivative graphs'
     combined_derivate_report_spline_tx_title = 'Splined TX combined derivate graph'
     combined_derivate_report_spline_ty_title = 'Splined TY combined derivate graph'
-
     text = 'Lorem Ipsum'
-
     html = f'''
         <html>
             <head>
@@ -214,8 +281,8 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
                 <h2>{first_derivate_report_spline_ty_title}</h2>
                 <p>{text}</p>
                 <img src={first_derivative_graph_ty_name} width="700">
-                
-                
+
+
                 <h1>{second_derivate_report_spline_title}</h1>
 
 
@@ -230,10 +297,10 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
                 <h2>{second_derivate_report_spline_ty_title}</h2>
                 <p>{text}</p>
                 <img src={second_derivative_graph_ty_name} width="700">
-                
+
                 <h1>{combined_derivate_report_spline_title}</h1>
 
-                
+
                 <h2>{combined_derivate_report_spline_tx_title}</h2>
                 <p>{text}</p>
                 <img src={combined_derivative_graph_tx_name} width="700">
@@ -241,7 +308,7 @@ def derivate_report(x_1d, x_2d, y_1d, y_2d, frames, source, current):
                 <h2>{combined_derivate_report_spline_ty_title}</h2>
                 <p>{text}</p>
                 <img src={combined_derivative_graph_ty_name} width="700">
-                
+
             </body>
         </html>
         '''
@@ -363,7 +430,7 @@ def create_graph(x, y, x_label, y_label, name):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(name)
-    plt.show()
+    #plt.show()
 
 
 def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_name, name):
@@ -373,7 +440,7 @@ def create_combined_graph(f1_x, f1_y, f2_x, f2_y, x_label, y_label, f1_name, f2_
     plt.ylabel(y_label)
     plt.legend()
     plt.savefig(name)
-    plt.show()
+    #plt.show()
 
 
 def create_csv(frames, x, y, frames_label, x_label, y_label, name, frame_rate, fps_label):
@@ -433,7 +500,7 @@ def create_graph_on_picture(x, y, name):
     #plt.gca().invert_yaxis()
     #plt.ylim(max(plt.ylim()), min(plt.ylim()))
     plt.savefig(picture_name)
-    plt.show()
+    #plt.show()
 
 
 class Reports:

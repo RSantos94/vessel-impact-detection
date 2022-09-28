@@ -3,17 +3,19 @@
 # 2022-09-07/08
 # R. Santos
 # 2022-09-09
-
+import os
 
 import numpy as np
 import math
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 
 def plotplac(plac, pontos, name, is_realidade: bool):
     if is_realidade:
-        # plt.axis("scaled")
-        plt.axis([0, 100, 0, 100])
+        plt.axis("scaled")
+        #plt.axis([0, 1, 0, 1])
     else:
         plt.axis([0, 3840, 0, 2160])
 
@@ -23,13 +25,16 @@ def plotplac(plac, pontos, name, is_realidade: bool):
     xy = np.array(pontos)
     plt.plot(xy[:, 0], xy[:, 1], ".")
     titulo = name.replace(".png", "")
-    plt.title(titulo)
+    if is_realidade:
+        plt.title("Coordenadas reais")
+    else:
+        plt.title("Coordenadas imagem")
     #plt.axis("scaled")
     #ax = plt.gca()
     #ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
     #ax.xaxis.tick_top()
     plt.savefig(name)
-    plt.show()
+    #plt.show()
 
 
 def interpola(pqsieta, p2, Ns):
@@ -72,7 +77,19 @@ def calculaN(xy):
 
 class Transforma:
 
-    def __init__(self, pontos_foto: list, pontos_reais: list, height: int, width: int):
+    def __init__(self, pontos_foto: list, pontos_reais: list, height: int, width: int, source: str, os_name: str, object_name):
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
+
+        if os_name == "Windows":
+            # D:\git\\vessel-impact-detection\\
+            self.picture_coordinates_graph = parent_path + '\\reports\\' + source + '\\object-' + object_name + '\\na_foto.png'
+            self.real_coordinates_graph = parent_path + '\\reports\\' + source + '\\object-' + object_name + '\\na_realidade.png'
+
+        else:
+            self.picture_coordinates_graph = 'reports/' + source + '/object-' + object_name + '/na_foto.png'
+            self.real_coordinates_graph = 'reports/' + source + '/object-' + object_name + '/na_realidade.png'
 
         self.pontos_reais = pontos_reais  # referencial real
         self.pontos_foto = pontos_foto  # referencial foto
@@ -92,8 +109,8 @@ class Transforma:
         for p in coor:
             xyr.append(interpola(p, self.pontos_reais, self.Ns))
 
-        plotplac(self.pontos_foto, coor, "na_foto.png", False)
-        plotplac(self.pontos_reais, xyr, "na_realidade.png", True)
+        plotplac(self.pontos_foto, coor, self.picture_coordinates_graph, False)
+        plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
 
         return xyr
 
@@ -122,5 +139,5 @@ class Transforma:
         for p in xy:
             xyr.append(interpola(p, self.pontos_reais, self.Ns))
 
-        plotplac(self.pontos_foto, xy, "na_foto.png")
-        plotplac(self.pontos_reais, xyr, "na_realidade.png")
+        plotplac(self.pontos_foto, xy, self.picture_coordinates_graph, False)
+        plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
