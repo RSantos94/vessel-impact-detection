@@ -4,38 +4,17 @@
 # R. Santos
 # 2022-09-09
 import os
+import platform
 
 import numpy as np
 import math
 import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
-def plotplac(plac, pontos, name, is_realidade: bool):
-    if is_realidade:
-        plt.axis("scaled")
-        #plt.axis([0, 1, 0, 1])
-    else:
-        plt.axis([0, 3840, 0, 2160])
 
-    plac.append(plac[0])
-    xy = np.array(plac)
-    plt.plot(xy[:, 0], xy[:, 1], "-")
-    xy = np.array(pontos)
-    plt.plot(xy[:, 0], xy[:, 1], ".")
-    titulo = name.replace(".png", "")
-    if is_realidade:
-        plt.title("Coordenadas reais")
-    else:
-        plt.title("Coordenadas imagem")
-    #plt.axis("scaled")
-    #ax = plt.gca()
-    #ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
-    #ax.xaxis.tick_top()
-    plt.savefig(name)
-    plt.clf()
-    #plt.show()
 
 
 def interpola(pqsieta, p2, Ns):
@@ -78,7 +57,8 @@ def calculaN(xy):
 
 class Transforma:
 
-    def __init__(self, pontos_foto: list, pontos_reais: list, height: int, width: int, source: str, os_name: str, object_name):
+    def __init__(self, pontos_foto: list, pontos_reais: list, height: int, width: int, source: str, os_name: str,
+                 object_name):
         full_path = os.path.realpath(__file__)
         path, filename = os.path.split(full_path)
         parent_path = os.path.dirname(path)
@@ -110,8 +90,8 @@ class Transforma:
         for p in coor:
             xyr.append(interpola(p, self.pontos_reais, self.Ns))
 
-        plotplac(self.pontos_foto, coor, self.picture_coordinates_graph, False)
-        plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
+        self.plotplac(self.pontos_foto, coor, self.picture_coordinates_graph, False)
+        self.plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
 
         return xyr
 
@@ -125,6 +105,28 @@ class Transforma:
 
         # for i in range(360):
         # xy.append([xc+r*math.cos(i),yc+r*math.sin(i)])
+        self.pontos_reais = [[-100, -100], [100, -100], [100, 100], [-100, 100]]  # referencial real
+        self.pontos_foto = [[50, 10], [200, 50], [180, 90], [0, 40]]  # referencial foto
+        self.Ns = calculaN(self.pontos_foto)
+        full_path = os.path.realpath(__file__)
+        path, filename = os.path.split(full_path)
+        parent_path = os.path.dirname(path)
+
+        os_name = platform.system()
+
+        if os_name == "Windows":
+            # D:\git\\vessel-impact-detection\\
+            path = parent_path + '\\reports\\example\\'
+            self.picture_coordinates_graph = parent_path + '\\reports\\example\\na_foto.png'
+            self.real_coordinates_graph = parent_path + '\\reports\\example\\na_realidade.png'
+
+        else:
+            path = 'reports/example/'
+            self.picture_coordinates_graph = 'reports/example/na_foto.png'
+            self.real_coordinates_graph = 'reports/example/na_realidade.png'
+
+        if not os.path.exists(path):
+            os.makedirs(path)
 
         x1 = (50 + 0) / 2
         x2 = (200 + 180) / 2
@@ -140,5 +142,36 @@ class Transforma:
         for p in xy:
             xyr.append(interpola(p, self.pontos_reais, self.Ns))
 
-        plotplac(self.pontos_foto, xy, self.picture_coordinates_graph, False)
-        plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
+        self.plotplac(self.pontos_foto, xy, self.picture_coordinates_graph, False)
+        self.plotplac(self.pontos_reais, xyr, self.real_coordinates_graph, True)
+
+    def plotplac(self, plac, pontos, name, is_realidade: bool):
+        if is_realidade:
+            # plt.axis("scaled")
+            plt.axis([-0.1, 2, -0.1, 2])
+            # plt.axis([-140, 110, -100, 160])
+        else:
+            plt.axis([0, self.width, 0, self.height])
+            # plt.axis([0, 500, 0, 250])
+
+        plac.append(plac[0])
+        xy = np.array(plac)
+        plt.plot(xy[:, 0], xy[:, 1], "-")
+        xy = np.array(pontos)
+        plt.plot(xy[:, 0], xy[:, 1], ".")
+        titulo = name.replace(".png", "")
+        # if is_realidade:
+        #    plt.title("Coordenadas reais")
+        # else:
+        #    plt.title("Coordenadas imagem")
+        # plt.axis("scaled")
+        # ax = plt.gca()
+        # ax.set_ylim(ax.get_ylim()[::-1])  # invert the axis
+        # ax.xaxis.tick_top()
+        plt.savefig(name)
+        plt.clf()
+        # plt.show()
+
+
+if __name__ == '__main__':
+    Transforma.example(Transforma)

@@ -60,7 +60,7 @@ class CalculatePhysics:
                                            y_1d(np.array(self.time_list)), y_2d(np.array(self.time_list)),
                                            np.array(self.time_list), self.source, self.object)
         i = 0
-        max_x = max(x_2d(np.array(self.time_list)))
+        max_x = min(x_2d(np.array(self.time_list)))
         max_y_list = []
         max_x_pos_list = []
         for i in range(0, x_2d(np.array(self.time_list)).size):
@@ -71,14 +71,10 @@ class CalculatePhysics:
             if i in max_x_pos_list:
                 max_y_list.append(y_2d(np.array(self.time_list))[i])
 
-        max_y = max(max_y_list)
+        max_y = min(max_y_list)
 
         max_acc = math.sqrt(max_x ** 2 + max_y ** 2)
 
-        print("Max acceleration: " + str(max_acc) + " m^2/s^2")
-
         max_force = max_acc * self.mass
-
-        print("Max acceleration: " + str(max_force) + " Kg*m^2/s^2 (N m)")
 
         return max_acc, max_force

@@ -129,7 +129,7 @@ if __name__ == '__main__':
             source = input("Video file name:")
 
             # teste 0006
-            # source = 'GH010727_impact_1'  # lnec gopro # ponto 2
+            source = 'GH010727_impact_1'  # lnec gopro # ponto 2
             # source = 'GH010727_impact_2'  # lnec gopro # ponto 4
             # source = 'GH010727_impact_3'  # lnec gopro # ponto 6/7(mais o 7) (7 falha calculos)
             # source = 'GH010727_impact_4'  # lnec gopro # ponto 5
@@ -138,7 +138,7 @@ if __name__ == '__main__':
             # source = 'GH010727_impact_7'  # lnec gopro # ponto 6
             # source = 'GH010727_impact_8'  # lnec gopro # ponto 5
             # source = 'GH010727_impact_9'  # lnec gopro # ponto 5
-            source = 'GH010727_impact_10'  # lnec gopro # ponto 7
+            # source = 'GH010727_impact_10'  # lnec gopro # ponto 7
 
             #teste 0010
             # source = 'MVI_2438'  # lnec camara
@@ -162,15 +162,15 @@ if __name__ == '__main__':
             # source = 'GH010954_1'  # teste piscina tupperware 1
             # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
-            window_size = (1280, 720)
-            # window_size = (1980, 1080)
+            #window_size = (1280, 720)
+            window_size = (1980, 1080)
             # window_size = (3840, 2160)
 
             # frame = []
 
             bs = create_bs(source, window_size, os_name)
 
-            # error = run(bs, is_test=False)
+            #error = run(bs, is_test=False)
             error = None
 
             if error is not None:
@@ -197,6 +197,9 @@ if __name__ == '__main__':
 
             physics = CalculatePhysics(coordinates, frame_rate, time_list, float(mass), source, objects_to_track[0])
             acceleration, force = physics.execute()
+
+            print("Max acceleration: " + str(acceleration) + " m^2/s^2")
+            print("Max force: " + str(force) + " Kg*m^2/s^2 (N m)")
 
             # sp.objects_to_track1 = objects_to_track1
             # sp.objects_to_track2 = objects_to_track2

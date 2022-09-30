@@ -24,7 +24,10 @@ class BackgroundSubtractionKNN:
             self.video_undistorted_format = self.video_undistorted_path + '*.png'
             self.video_undistorted_video = self.video_undistorted_path + 'filename.mp4'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
-            self.screenshot_name = parent_path + '\\screenshot_files\\' + source_name
+            self.screenshot_path = parent_path + '\\screenshot_files\\'
+            self.screenshot_name = self.screenshot_path + source_name
+            self.screenshot_bs_path = self.screenshot_path + '\\backgroud-subtactor\\'
+            self.screenshot_name_bs = self.screenshot_bs_path + source_name
             self.centroid_file = parent_path + '\\results\\' + source_name + '-centroids.csv'
         else:
             self.video_name = parent_path + '/video_files/' + source_name + '.mp4'
@@ -32,7 +35,10 @@ class BackgroundSubtractionKNN:
             self.video_undistorted_format = self.video_undistorted_path + '*.png'
             self.video_undistorted_video = self.video_undistorted_path + 'filename.mp4'
             self.fps_file = self.video_undistorted_path + 'fps.txt'
-            self.screenshot_name = parent_path + '/screenshot_files/' + source_name
+            self.screenshot_path = parent_path + '/screenshot_files/'
+            self.screenshot_name = self.screenshot_path + source_name
+            self.screenshot_bs_path = self.screenshot_path + 'backgroud-subtactor/'
+            self.screenshot_name_bs = self.screenshot_bs_path + source_name
             self.centroid_file = parent_path + '/results/' + source_name + '-centroids.csv'
 
         self.camera_calibration = CameraCalibration(source_name, os_name)
@@ -114,6 +120,9 @@ class BackgroundSubtractionKNN:
 
         bs_knn = cv2.createBackgroundSubtractorKNN(history=history, detectShadows=detect_shadows,
                                                    dist2Threshold=dist_2_threshold)
+        img_counter = 0
+        if not os.path.exists(self.screenshot_bs_path):
+            os.makedirs(self.screenshot_bs_path)
 
         while cap.isOpened():
             # timer = cv2.getTickCount()
@@ -166,7 +175,10 @@ class BackgroundSubtractionKNN:
 
                     # fgKnn = bs_knn.apply(undistorted_img)
 
-                    self.select_objects(centroid_object_min_area, fps, cap.get(cv2.CAP_PROP_POS_FRAMES), fgKnn, history, is_test)
+                    img_name = self.screenshot_name_bs + '_' + str(img_counter) + '.png'
+                    self.select_objects(centroid_object_min_area, fps, cap.get(cv2.CAP_PROP_POS_FRAMES), fgKnn, history,
+                                        is_test, img_name)
+                    img_counter += 1
 
                 if cv2.waitKey(1) & 0xff == ord('q'):
                     break
@@ -175,10 +187,11 @@ class BackgroundSubtractionKNN:
 
         return error
 
-    def select_objects(self, area: int, fps: float, frame: int, fg_knn, history: int, is_test: bool):
+    def select_objects(self, area: int, fps: float, frame: int, fg_knn, history: int, is_test: bool, filename: str):
         if fg_knn is not None:
             fg_knn_rs = self.get_centroid(area, fps, frame, fg_knn, history, is_test)
 
+            cv2.imwrite(filename, fg_knn_rs)
             # cv2.namedWindow("Foreground", cv2.WINDOW_NORMAL)
             # cv2.rectangle(fg_knn_rs, (10, 2), (140, 20), (255, 255, 255), -1)
             # cv2.putText(fg_knn_rs, str(cap.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15),
