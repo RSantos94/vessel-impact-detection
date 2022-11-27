@@ -1,41 +1,17 @@
 import glob
 import os
 import platform
-import ffmpeg
+#import ffmpeg
 
 import cv2
 
 from tools.camera_calibration import CameraCalibration
 from os.path import exists
 
-if __name__ == '__main__':
+def calibrate (source):
     os_name = platform.system()
     full_path = os.path.realpath(__file__)
     path, filename = os.path.split(full_path)
-
-    source = input("Video file name:")
-
-    # source = 'MVI_2438'  # lnec camara
-    #source = 'GH010731_cut'  # lnec gopro
-    #source = 'GH010731_impact_1'  # lnec gopro
-    #source = 'GH010731_impact_2'  # lnec gopro
-    #source = 'GH010731_impact_3'  # lnec gopro
-    #source = 'GH010731_impact_4'  # lnec gopro
-    #source = 'GH010731_impact_5'  # lnec gopro
-    #source = 'GH010731_impact_6'  # lnec gopro
-    #source = 'GH010731_impact_7'  # lnec gopro
-    #source = 'GH010731_impact_8'  # lnec gopro
-    #source = 'GH010731_impact_9'  # lnec gopro
-    #source = 'GH010731_impact_10'  # lnec gopro
-    source = 'GH010731_impact_11'  # lnec gopro
-
-
-    # source = 'GH010946_1' # teste piscina 1
-    # source = 'PXL_20220308_141209924_1' # teste piscina 1
-    # source = 'GH010949-cut'  # teste piscina 2
-    # source = 'PXL_20220311_123649450-cut'  # teste piscina 2
-    # source = 'GH010954_1'  # teste piscina tupperware 1
-    # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
 
     if os_name == "Windows":
         video_name = path + '\\video_files\\' + source + '.mp4'
@@ -78,7 +54,7 @@ if __name__ == '__main__':
             success, img = cap.read()
 
             if not success:
-                break
+             break
 
             if img is not None:
 
@@ -86,6 +62,7 @@ if __name__ == '__main__':
                     height = img.shape[0]
                     width = img.shape[1]
                 undistorted_img = camera_calibration.undistort(img)
+                # cv2.imshow("Pier cam", img)
 
                 img_name = converted_path + (str(img_counter)).zfill(10) + '.png'
                 cv2.imwrite(img_name, undistorted_img)
@@ -100,7 +77,7 @@ if __name__ == '__main__':
         f = open(fps_file, "r")
         fps = float(f.read())
 
-        #process = ffmpeg.input('pipe:', format='png_pipe', r=str(fps)).output(video_file, vcodec='libx264').overwrite_output().run_async(pipe_stdin=True)
+        # process = ffmpeg.input('pipe:', format='png_pipe', r=str(fps)).output(video_file, vcodec='libx264').overwrite_output().run_async(pipe_stdin=True)
 
         # process2 = (
         #     ffmpeg
@@ -122,3 +99,7 @@ if __name__ == '__main__':
 
     else:
         print("Video " + video_name + "doesn't exists!")
+if __name__ == '__main__':
+    source = input("Video file name:")
+
+    calibrate(source)
