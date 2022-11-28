@@ -19,5 +19,7 @@ __pycache__/
 
 /video_files/
 !/video_files/.gitkeep
+!/video_files/converted/30fps.sh
+!/video_files/converted/50fps.sh
 Data collection/*.ipynb
 reports/
