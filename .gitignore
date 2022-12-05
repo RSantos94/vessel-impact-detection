@@ -23,3 +23,5 @@ __pycache__/
 !/video_files/converted/50fps.sh
 Data collection/*.ipynb
 reports/
+
+screenshot_files/backgroud-subtactor/
