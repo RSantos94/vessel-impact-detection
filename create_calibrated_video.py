@@ -1,6 +1,8 @@
 import glob
 import os
 import platform
+import time
+
 #import ffmpeg
 
 import cv2
@@ -122,13 +124,21 @@ if __name__ == '__main__':
     matching = [s for s in files if any(c in s for c in ('.mp4', '.MP4'))]
     matching = list(map(lambda x: x.replace('.mp4', '').replace('.MP4',''), matching))
 
-    #sources = [s for s in matching if "impacto" in s]
+    sources = [s for s in matching if "impacto" in s]
     sources = matching
 
-    sources = [s for s in sources if "GX011536" in s]
+    sources = [s for s in sources if "GX011535" in s]
 
+    times = []
     for vid in sources:
         print("Calibrating video: " + vid)
+        start = time.time()
         calibrate(vid, os_name, path)
+        end = time.time()
+        duration = end - start
+        times.append(duration)
+        print("Video took: "+ str(duration) + " seconds")
 
+    average = sum(times) / len(times)
+    print("Videos took in average: " + str(average) + " seconds")
     #calibrate(source, os_name, path)
