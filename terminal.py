@@ -128,40 +128,6 @@ if __name__ == '__main__':
         else:
             source = input("Video file name:")
 
-            # teste 0006
-            source = 'GH010727_impact_1'  # lnec gopro # ponto 2
-            # source = 'GH010727_impact_2'  # lnec gopro # ponto 4
-            # source = 'GH010727_impact_3'  # lnec gopro # ponto 6/7(mais o 7) (7 falha calculos)
-            # source = 'GH010727_impact_4'  # lnec gopro # ponto 5
-            # source = 'GH010727_impact_5'  # lnec gopro # ponto 7
-            # source = 'GH010727_impact_6'  # lnec gopro # ponto 5
-            # source = 'GH010727_impact_7'  # lnec gopro # ponto 6
-            # source = 'GH010727_impact_8'  # lnec gopro # ponto 5
-            # source = 'GH010727_impact_9'  # lnec gopro # ponto 5
-            # source = 'GH010727_impact_10'  # lnec gopro # ponto 7
-
-            #teste 0010
-            # source = 'MVI_2438'  # lnec camara
-            # source = 'GH010731_cut'  # lnec gopro
-            # source = 'GH010731_impact_1'  # lnec gopro # ponto 4
-            # source = 'GH010731_impact_2'  # lnec gopro # ponto 3
-            # source = 'GH010731_impact_3'  # lnec gopro # ponto 2
-            # source = 'GH010731_impact_4'  # lnec gopro # ponto 4
-            # source = 'GH010731_impact_5'  # lnec gopro # ponto 6
-            # source = 'GH010731_impact_6'  # lnec gopro # ponto 5
-            # source = 'GH010731_impact_7'  # lnec gopro # ponto 5
-            # source = 'GH010731_impact_8'  # lnec gopro # ponto 4
-            # source = 'GH010731_impact_9'  # lnec gopro # ponto 6 (fraco)
-            # source = 'GH010731_impact_10'  # lnec gopro # ponto 4
-            # source = 'GH010731_impact_11'  # lnec gopro # ponto 8
-
-            # source = 'GH010946_1' # teste piscina 1
-            # source = 'PXL_20220308_141209924_1' # teste piscina 1
-            # source = 'GH010949-cut'  # teste piscina 2
-            # source = 'PXL_20220311_123649450-cut'  # teste piscina 2
-            # source = 'GH010954_1'  # teste piscina tupperware 1
-            # source = 'PXL_20220319_165746871_1'  # teste piscina tupperware 1
-
             #window_size = (1280, 720)
             window_size = (1980, 1080)
             # window_size = (3840, 2160)
